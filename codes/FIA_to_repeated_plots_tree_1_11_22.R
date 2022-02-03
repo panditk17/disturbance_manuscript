@@ -4,11 +4,13 @@
 # -------------- Karun Pandit, 2022 --------------------------
 
 rm(list=ls())
-memory.limit(size=100000000)
+memory.limit(size=1000000000)
 
+remove.packages("tidyverse")
+install.packages("tidyverse")
 library(tidyverse)
 
-plots<-read.csv("../data/PLOT.CSV")
+plots<-read.csv("../../data/PLOT.CSV")
 plots_all<-plots %>% select(CN,PREV_PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,
                             PLOT,PLOT_STATUS_CD,MEASYEAR,REMPER,LAT,LON,ELEV,
                             ECOSUBCD,KINDCD,DESIGNCD)
@@ -22,10 +24,10 @@ plots_all$pplotidyr<-paste0(plots_all$STATECD,"-",plots_all$UNITCD,"-",
 library(tidyr)
 library(dplyr)
 
-conds<-read.csv("../data/COND.csv")
+conds<-read.csv("../../data/COND.csv")
 
 cond_all<-conds %>% select(PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,PLOT,CONDID,
-                          FORTYPCD,STDAGE,SITECLCD,SICOND,STDORGCD,SLOPE,
+                          FORTYPCD,STDAGE,FLDAGE,FLDSZCD,SITECLCD,SICOND,STDORGCD,SLOPE,
                           ASPECT,DSTRBCD1,DSTRBYR1,DSTRBCD2,DSTRBYR2,DSTRBCD3,
                           DSTRBYR3,TRTCD1,TRTYR1,TRTCD2,TRTYR2,TRTCD3,TRTYR3,
                           BALIVE)
@@ -38,7 +40,7 @@ cond_all$cplotidyr<-paste0(cond_all$STATECD,"-",cond_all$UNITCD,"-",
 filt_cond<-cond_all[which(cond_all$CONDID==1),]
 rm(cond_all)
 
-tree_all<-readRDS("../data/subset_tree_all.RDS") # subset of tree table with
+tree_all<-readRDS("../../data/subset_tree_all.RDS") # subset of tree table with
                                                   # selected columns          
 
 tree_all$tplotid<-paste0(tree_all$STATECD,"-",tree_all$UNITCD,"-",
@@ -56,8 +58,8 @@ tree_cond_plot<-merge(tree_cond,plots_all,by.x="tplotidyr",by.y="pplotidyr",
 rm(tree_cond)
 rm(plots_all)
 #save file
-saveRDS(tree_cond_plot,"../tree_cond_plot_all_true.RDS")
-tree_cond_plot<-readRDS("../tree_cond_plot_all_true.RDS")
+saveRDS(tree_cond_plot,"../../data/tree_cond_plot_all_true.RDS")
+# tree_cond_plot<-readRDS("../tree_cond_plot_all_true.RDS")
 
 alltreex<-count(tree_cond_plot,tplotid)
 alltreexyr<-count(tree_cond_plot,tplotidyr)
@@ -161,12 +163,12 @@ rm(nofourthall)
 rm(nofifthall)
 
 dataall12<-merge(firstall,secondall, by="TREEID",all=TRUE,suffixes=c(".1",".2"))
-saveRDS(dataall12,"all_two_repeated_tree1.RDS")
+saveRDS(dataall12,"../../data/all_two_repeated_tree1.RDS")
 rm(firstall)
 rm(secondall)
 
 dataall123<-merge(dataall12,thirdall, by="TREEID",all=TRUE)
-saveRDS(dataall123,"all_three_repeated_tree1.RDS")
+saveRDS(dataall123,"../../data/all_three_repeated_tree1.RDS")
 
 
 ppp12<-count(dataall1234,NUNIDS.y)
@@ -176,26 +178,26 @@ rm(thridall)
 
 
 dataall1234<-merge(dataall123,fourthall, by="TREEID",all=TRUE)
-saveRDS(dataall1234,"all_four_repeated_tree1.RDS")
+saveRDS(dataall1234,"../../data/all_four_repeated_tree1.RDS")
 
 
 dataall12345<-merge(dataall1234,fifthall, by="TREEID",all=TRUE)
-saveRDS(dataall12345,"all_five_repeated_tree1.RDS")
+saveRDS(dataall12345,"../../data/all_five_repeated_tree1.RDS")
 
 dataall12$diff_meas<-dataall12$MEASYEAR.2 - dataall12$MEASYEAR.1
 
 dataall34<-merge(thirdall,fourthall,by="TREEID",all=TRUE,suffixes=c(".3",".4"))
-saveRDS(dataall34,"all_three_four_tree.RDS")
+saveRDS(dataall34,"../../data/all_three_four_tree.RDS")
 
 rm(thirdall)
 rm(fourthall)
 rm(nnoopp)
 
-dataall12<-readRDS("all_states_tree_repeated.RDS")
-dataall34<-readRDS("all_three_four_tree.RDS")
+dataall12<-readRDS("../../data/all_states_tree_repeated.RDS")
+dataall34<-readRDS("../../data/all_three_four_tree.RDS")
 
-dataall1234<-readRDS("all_states_tree_repeated_3_4_times.RDS")
-dataall56<-readRDS("all_states_fivesix.RDS")
+dataall1234<-readRDS("../../data/all_states_tree_repeated_3_4_times.RDS")
+dataall56<-readRDS("../../data/all_states_fivesix.RDS")
 
 
 memory.limit(size=10000000000)
