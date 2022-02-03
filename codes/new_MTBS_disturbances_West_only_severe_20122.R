@@ -2,8 +2,6 @@
 ## compare post-fire recovery following severe fire
 ## AGB and seedling density compared between conifer and hardwood
 ## -------------- Karun Pandit, 2022 -------------------------------
-setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
-
 rm(list=ls())
 
 library(tidyr)
@@ -31,8 +29,8 @@ mtbs_plots3<-separate(mtbs_plots2,fire_id_mtbs, into = c("id_1", "fire_yr",
                 sep =c(13,17,19,21), remove = FALSE)
 
 #read seedling data from two measurements
-seedling1<-readRDS("all_seedlings_first.RDS")
-seedling2<-readRDS("all_seedlings_second.RDS")
+seedling1<-readRDS("../data/all_seedlings_first.RDS")
+seedling2<-readRDS("../data/all_seedlings_second.RDS")
 
 # rename
 ssdam<-mtbs_plots3
@@ -61,8 +59,12 @@ conds<-read.csv("../../data/COND.CSV")
 
 library(tidyverse)
 
-conds_all<-conds %>% select(INVYR,STATECD,UNITCD,COUNTYCD,
-                            PLOT,FLDSZCD,CONDPROP_UNADJ)
+
+conds_all<-conds[c("INVYR","STATECD","UNITCD","COUNTYCD",
+                            "PLOT","FLDSZCD","CONDPROP_UNADJ","STDAGE","FLDAGE")]
+# 
+# conds_all<-conds %>% select(INVYR,STATECD,UNITCD,COUNTYCD,
+#                             PLOT,FLDSZCD,CONDPROP_UNADJ,STDAGE,FLDAGE)
 conds_all$pplotid<-paste0(conds_all$STATECD,"-",conds_all$UNITCD,"-",
                           conds_all$COUNTYCD,"-",conds_all$PLOT)
 conds_all$pplotidyr<-paste0(conds_all$STATECD,"-",conds_all$UNITCD,"-",
@@ -70,17 +72,22 @@ conds_all$pplotidyr<-paste0(conds_all$STATECD,"-",conds_all$UNITCD,"-",
 conds_sort <- conds_all[order(conds_all$pplotidyr,conds_all$CONDPROP_UNADJ),]
 
 #
+# remove.packages("tidyverse")
+# install.packages("tidyverse")
+library(tidyverse)
 cond_sel<-conds_all %>% group_by(pplotidyr) %>%
   filter(abs(CONDPROP_UNADJ) == min(CONDPROP_UNADJ))
 #
 cond_sel2<-cond_sel[c("pplotidyr","FLDSZCD")]
 colnames(cond_sel2)<-c("pplotidyr","FLDSZCD")
 
-cond_sel3<-cond_sel2 %>% group_by(pplotidyr) %>%  slice(1) 
+cond_sel3<-cond_sel %>% group_by(pplotidyr) %>%  slice(1) 
 
 
 sdam11b<-merge(sdam11a,cond_sel3,by.x="NUNID.1",by.y="pplotidyr")
 sdam11<-merge(sdam11b,cond_sel3,by.x="NUNID.2",by.y="pplotidyr")
+
+jkjk<-count(sdam11,STDAGE.1,STDAGE.2,STDAGE.x,STDAGE.y)
 
 rm(conds)
 
@@ -126,7 +133,7 @@ sdam1$sdsp_rh_ch_con<-sdam1$sd_spp_rich_con.2-sdam1$sd_spp_rich_con.1
 
 dam1<-sdam1
 
-write.csv(dam1,"plots_disturbance_MTBS1.csv")
+write.csv(dam1,"outputs/plots_disturbance_MTBS1.csv")
 
 fff<-count(dam1,rep_std,severity)
 
@@ -174,7 +181,7 @@ ggplot(data=dam1) +
 dam3<-separate(dam1, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
 
 # use function to convert forest type to groups
-source("FTGC.R")
+source("codes/FTGC.R")
 dam3$FOR_GRP<-FTGC(dam3$FORTYPCD.1)
 
 
@@ -185,7 +192,7 @@ dam3$AGB.2<-(dam3$AGB.2*453.6*2.471)/1000000
 dam3$AGB_CHP<-(dam3$AGB.2-dam3$AGB.1)
 
 # read file with ecoregion code from the west
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../data/eco_select.csv")
 
 dam3$ecocode <- trimws(dam3$Spl_1, which = c("left"))
 
@@ -448,13 +455,13 @@ print(ch_hardsev)
 print(ch_consev)
 
 
-write.csv(contab6,"summary_conifer.csv")
-write.csv(hardtab6,"summary_hardwood.csv")
+write.csv(contab6,"outputs/summary_conifer.csv")
+write.csv(hardtab6,"outputs/summary_hardwood.csv")
 
 # plot comparing severe vs mild fire
 
 
-png("mtbs_figures_severe_mild.jpeg", width = 1000, height = 1400)
+png("figures/mtbs_figures_severe_mild.jpeg", width = 1000, height = 1400)
 par(xpd = F, mar = c(4,4,4,0.5))
 par(mfrow=c(7,2))
 
@@ -689,6 +696,7 @@ p10<-ggplot(data=sdam_hard) +
 library(grid)
 
 library(gtable)
+library(gridExtra)
 legend1 = gtable_filter(ggplot_gtable(ggplot_build(p3 + theme(legend.position="bottom"))), "guide-box")
 legend2 = gtable_filter(ggplot_gtable(ggplot_build(p8 + theme(legend.position="bottom"))), "guide-box")
 tg1 <- textGrob('Conifer', gp = gpar(fontsize = 14, fontface = 'bold'))
@@ -717,7 +725,7 @@ dev.off()
 
 
 
-png("mtbs_fig_by_foresttype45.jpeg", width = 1000, height = 1100)
+png("figures/mtbs_fig_by_foresttype45.jpeg", width = 1000, height = 1100)
 par(xpd = F, mar = c(4,4,6,0.5))
 par(mfrow=c(4,2))
 
@@ -926,6 +934,41 @@ sdam_consev$age_cat.2<-ifelse(sdam_consev$STDAGE.2==0,"Zero","Non-zero")
 sdam_consev$stocked.1<-ifelse(sdam_consev$FLDSZCD.x>0,"Stocked","Non-stocked")
 sdam_consev$stocked.2<-ifelse(sdam_consev$FLDSZCD.y>0,"Stocked","Non-stocked")
 consev0<-count(sdam_consev,age_cat.1,age_cat.2,stocked.1,stocked.2)
+
+
+
+
+sdam_hardsev$age_cat.1b<-ifelse(sdam_hardsev$STDAGE.x==0,"Zero","Non-zero")
+sdam_hardsev$age_cat.2b<-ifelse(sdam_hardsev$STDAGE.y==0,"Zero","Non-zero")
+sdam_hardsev$stocked.1b<-ifelse(sdam_hardsev$FLDSZCD.x>0,"Stocked","Non-stocked")
+sdam_hardsev$stocked.2b<-ifelse(sdam_hardsev$FLDSZCD.y>0,"Stocked","Non-stocked")
+hardsev0b<-count(sdam_hardsev,age_cat.1b,age_cat.2b,stocked.1b,stocked.2b)
+
+sdam_consev$age_cat.1b<-ifelse(sdam_consev$STDAGE.x==0,"Zero","Non-zero")
+sdam_consev$age_cat.2b<-ifelse(sdam_consev$STDAGE.y==0,"Zero","Non-zero")
+sdam_consev$stocked.1b<-ifelse(sdam_consev$FLDSZCD.x>0,"Stocked","Non-stocked")
+sdam_consev$stocked.2b<-ifelse(sdam_consev$FLDSZCD.y>0,"Stocked","Non-stocked")
+consev0b<-count(sdam_consev,age_cat.1b,age_cat.2b,stocked.1b,stocked.2b)
+
+
+
+
+sdam_hardsev$age_cat.1c<-ifelse(sdam_hardsev$FLDAGE.x==0,"Zero","Non-zero")
+sdam_hardsev$age_cat.2c<-ifelse(sdam_hardsev$FLDAGE.y==0,"Zero","Non-zero")
+sdam_hardsev$stocked.1c<-ifelse(sdam_hardsev$FLDSZCD.x>0,"Stocked","Non-stocked")
+sdam_hardsev$stocked.2c<-ifelse(sdam_hardsev$FLDSZCD.y>0,"Stocked","Non-stocked")
+hardsev0c<-count(sdam_hardsev,age_cat.1c,age_cat.2c,stocked.1c,stocked.2c)
+
+sdam_consev$age_cat.1c<-ifelse(sdam_consev$FLDAGE.x==0,"Zero","Non-zero")
+sdam_consev$age_cat.2c<-ifelse(sdam_consev$FLDAGE.y==0,"Zero","Non-zero")
+sdam_consev$stocked.1c<-ifelse(sdam_consev$FLDSZCD.x>0,"Stocked","Non-stocked")
+sdam_consev$stocked.2c<-ifelse(sdam_consev$FLDSZCD.y>0,"Stocked","Non-stocked")
+consev0c<-count(sdam_consev,age_cat.1c,age_cat.2c,stocked.1c,stocked.2c)
+
+
+
+
+
 
 
 # 
