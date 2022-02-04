@@ -181,7 +181,7 @@ ggplot(data=dam1) +
 dam3<-separate(dam1, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
 
 # use function to convert forest type to groups
-source("codes/FTGC.R")
+source("../data/FTGC.R")
 dam3$FOR_GRP<-FTGC(dam3$FORTYPCD.1)
 
 
