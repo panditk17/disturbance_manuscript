@@ -1,6 +1,8 @@
-### plots based on disturbances from FIA data
+## codes for box plots and tests associated with disturbances
+## basd on FIA data
+## 
 
-setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
+### plots based on disturbances from FIA data
 
 rm(list=ls())
 

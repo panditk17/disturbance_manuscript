@@ -1,5 +1,6 @@
-setwd('C:/Karuns_documents/fire_MTBS/fire_forest_ecosystem')
-
+## codes to identify MTBS plots matching with FIA data
+## finding pre and post data
+## --------------- Karun Pandit, 2022 ----------------
 rm(list=ls())
 
 #test with FL and GA plots
@@ -25,7 +26,6 @@ mtbs_data_allg$mean_sev_r<-round(mtbs_data_allg$mean_sev)
 
 
 # select only GA data from 2013
-#mtbs_data_FL <- mtbs_data_allg[which(mtbs_data_allg$statewfire==12),]
 mtbs_data_FL<-mtbs_data_allg
 
 # join MTBS GA data with FIA data
@@ -60,26 +60,17 @@ library(reshape)
 
 # select plots before fire year
 
-
-#i=2005
-
 a<- min(mtbs_plots_FL_allyr$MTBSfireyear)
 b<- max(mtbs_plots_FL_allyr$MTBSfireyear)
 
 colnn<-length(mtbs_plots_FL_allyr)
 
 
-
 pret2<-data.frame(matrix(ncol = colnn, nrow = 0))
 
 for(i in a:b) {  
-  # i-th element of `u1` squared into `i`-th position of `usq`
-  
   pret1a <- mtbs_plots_FL_allyr[which(mtbs_plots_FL_allyr$MTBSfireyear==i),]
-  
   pret1b <- pret1a[which(pret1a$MEASYEAR.y < i),]
-  
-  
   pret2<-rbind(pret2,pret1b)
   
 }
@@ -120,17 +111,13 @@ mtbs_unique_pre_2<-data.frame(count(mtbs_pre_vars2,nplotid))
 
 
 # work on post fire plots
-
 post2<-data.frame(matrix(ncol = colnn, nrow = 0))
 
 for(i in a:b) {  
   # i-th element of `u1` squared into `i`-th position of `usq`
   
   post1a <- mtbs_plots_FL_allyr[which(mtbs_plots_FL_allyr$MTBSfireyear==i),]
-  
   post1b <- post1a[which(post1a$MEASYEAR.y > i),]
-  
-  
   post2<-rbind(post1b,post2)
   
 }
@@ -187,11 +174,8 @@ mm5<-merge(mm4,jj6,by="nplotid")
 mm6<-merge(mm5,jj7,by="nplotid")
 mm7<-merge(mm6,jj8,by="nplotid")
 
-
-
 mtbs_prepos_12<-merge(mtbs_pre_vars1,mtbs_post_vars2,by="nplotid",all.y=FALSE)
 mtbs_uni_prepos_12<-data.frame(count(mtbs_prepos_12,nplotid))
-
 
 bjj1<-aggregate(fire_id.x~nplotid, mtbs_prepos_12, FUN=max)
 bjj2<-aggregate(LAT.x.x~nplotid, mtbs_prepos_12, FUN=max)
@@ -211,13 +195,8 @@ bmm5<-merge(bmm4,bjj6,by="nplotid")
 bmm6<-merge(bmm5,bjj7,by="nplotid")
 bmm7<-merge(bmm6,bjj8,by="nplotid")
 
-
-
-
 mtbs_prepos_21<-merge(mtbs_pre_vars2,mtbs_post_vars1,by="nplotid",all.y=FALSE)
 mtbs_uni_prepos_21<-data.frame(count(mtbs_prepos_21,nplotid))
-
-
 
 cjj1<-aggregate(fire_id.x~nplotid, mtbs_prepos_21, FUN=max)
 cjj2<-aggregate(LAT.x.x~nplotid, mtbs_prepos_21, FUN=max)
@@ -237,12 +216,8 @@ cmm5<-merge(cmm4,cjj6,by="nplotid")
 cmm6<-merge(cmm5,cjj7,by="nplotid")
 cmm7<-merge(cmm6,cjj8,by="nplotid")
 
-
-
-
 mtbs_prepos_22<-merge(mtbs_pre_vars2,mtbs_post_vars2,by="nplotid",all.y=FALSE)
 mtbs_uni_prepos_22<-data.frame(count(mtbs_prepos_22,nplotid))
-
 
 djj1<-aggregate(fire_id.x~nplotid, mtbs_prepos_22, FUN=max)
 djj2<-aggregate(LAT.x.x~nplotid, mtbs_prepos_22, FUN=max)
@@ -288,18 +263,15 @@ colnames(emm7)<-c("nplotid","fire_id_mtbs","lat_n","lon_n","prefire_n",
                   "post_fire_n","sev_cen","sev_mean","MTBS_fireyear")
 
 
-
 write.csv(emm7,"../MTBS_fire_FIA_plots11.csv")
 
-
-ttt<-emm7[which(emm7$prefire_n==1),]
-
-
-mtbs_uni_prepos_all<-data.frame(count(mtbs_prepos_all,nplotid))
-
-write.csv(mtbs_uni_prepos_11,"../data/plots_measured_11_FL.csv")
-write.csv(mtbs_uni_prepos_12,"../data/plots_measured_12_FL.csv")
-write.csv(mtbs_uni_prepos_21,"../data/plots_measured_21_FL.csv")
-write.csv(mtbs_uni_prepos_22,"../data/plots_measured_22_FL.csv")
+# ttt<-emm7[which(emm7$prefire_n==1),]
+# 
+# mtbs_uni_prepos_all<-data.frame(count(mtbs_prepos_all,nplotid))
+# 
+# write.csv(mtbs_uni_prepos_11,"..data/plots_measured_11_FL.csv")
+# write.csv(mtbs_uni_prepos_12,"../data/plots_measured_12_FL.csv")
+# write.csv(mtbs_uni_prepos_21,"../data/plots_measured_21_FL.csv")
+# write.csv(mtbs_uni_prepos_22,"../data/plots_measured_22_FL.csv")
 
 
