@@ -1,6 +1,6 @@
 ### plots based on disturbances from FIA data
 
-setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
+# setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
 
 rm(list=ls())
 
@@ -9,7 +9,7 @@ library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
 
-sdam2<-read.csv("new_plot_data.csv")
+sdam2<-read.csv("../disturbance/new_plot_data.csv")
 
 sdam3<-sdam2[which(sdam2$STDAGE_1<250),]
 
@@ -69,7 +69,7 @@ sdam42$phy_fac<-as.factor(sdam42$phy_fac)
 sdam42$dist_shift_sh<-as.factor(sdam42$dist_shift_short)
 
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 sdam42$ecocode <- trimws(sdam42$Spl_1, which = c("left"))
 
@@ -142,7 +142,7 @@ sdam5<-sdam4[which(sdam4$damtrt2=="F"),]
 data_fire_agb1<-sdam5[c("AGB.2","AGB.1","STDORG","FORGRP","STDAGE_1","STDAGE_2",
                         "ECOREG","dist_shift_sh","ELEV","aspect_trans","SLOPE.y","phy_fac")]
 
-
+tab54<-count(data_fire_agb1,dist_shift_sh)
 
 colnames(data_fire_agb1)<-c("AGB.2","Pre_dist_AGB","Stand_origin","Forest_Group",
                             "Pre_dist_stand_age","Post_dist_stand_age",
@@ -192,7 +192,7 @@ data_cut_agb1<-sdam6[c("AGB.2","AGB.1","STDORG","FORGRP","STDAGE_1","STDAGE_2",
                        "ECOREG","dist_shift_sh","ELEV","aspect_trans","SLOPE.x","phy_fac")]
 
 
-
+table55<-count(data_cut_agb1,dist_shift_sh)
 colnames(data_cut_agb1)<-c("AGB.2","Pre_dist_AGB","Stand_origin","Forest_Group",
                            "Pre_dist_stand_age","Post_dist_stand_age",
                            "Ecoregion","previous_disturbance","elevation","aspect","slope",
@@ -231,7 +231,7 @@ sdam7<-sdam4[which(sdam4$dist_codes=="I"),]
 data_ins_agb1<-sdam7[c("AGB.2","AGB.1","STDORG","FORGRP","STDAGE_1","STDAGE_2",
                        "ECOREG","dist_shift_sh","ELEV","aspect_trans","SLOPE.x","phy_fac")]
 
-
+table56<-count(data_ins_agb1,dist_shift_sh)
 
 colnames(data_ins_agb1)<-c("AGB.2","Pre_dist_AGB","Stand_origin","Forest_Group",
                            "Pre_dist_stand_age","Post_dist_stand_age",
