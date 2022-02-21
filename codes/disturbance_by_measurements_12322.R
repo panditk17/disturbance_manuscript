@@ -25,7 +25,7 @@ all_plots1<-all_plots1[which(all_plots1$KINDCD==1|all_plots1$KINDCD==2),]
 
 all_plots1$rep_std<-ifelse(all_plots1$STDAGE<=all_plots1$REMPER,1,0)
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 
 library(operators)
@@ -50,7 +50,9 @@ all_plots3$distrt<-ifelse(all_plots3$damcod=="F.C"|all_plots3$damcod=="I.C"|all_
                                                          ifelse(all_plots3$damcod=="ND.OT","OT","other"
                                                          )))))))
 
+# remove.packages("tidyverse")
 
+require(tidyverse)
 ttt<-count(all_plots3,rep_std,distrt)
 
 
@@ -66,21 +68,21 @@ mtbs<-read.csv("../../MTBS_fire_FIa_plots.csv")
 
 unique<-count(mtbs,nplotid)
 
-trees_fire11<-firstall1[firstall1$NUNIDS.2 %in% mtbs$nplotid,]
+trees_fire11<-firstall1[firstall1$NUNIDS.x %in% mtbs$nplotid,]
 
-trees_fire_33<-trees_fire_22
-
-#data with first measurements less than fire year
-trees_fire_33<-trees_fire_22[which(trees_fire_22$MEASYEAR.1<trees_fire_22$MTBS_fireyear),]
-
-#data with first measurements less and second measurements greater than fire year
-trees_fire_44<-trees_fire_33[which(trees_fire_33$MEASYEAR.2>trees_fire_33$MTBS_fireyear),]
-
-tablepp<-count(trees_fire_44,NUNIDS.2)
-
-#data with first &second measureemtns less and third measurements greater than fire year
-trees_fire_55<-trees_fire_33[which(trees_fire_33$MEASYEAR.2<trees_fire_33$MTBS_fireyear
-                                   & trees_fire_33$MEASYEAR>trees_fire_33$MTBS_fireyear),]
+# trees_fire_33<-trees_fire_22
+# 
+# #data with first measurements less than fire year
+# trees_fire_33<-trees_fire_22[which(trees_fire_22$MEASYEAR.1<trees_fire_22$MTBS_fireyear),]
+# 
+# #data with first measurements less and second measurements greater than fire year
+# trees_fire_44<-trees_fire_33[which(trees_fire_33$MEASYEAR.2>trees_fire_33$MTBS_fireyear),]
+# 
+# tablepp<-count(trees_fire_44,NUNIDS.2)
+# 
+# #data with first &second measureemtns less and third measurements greater than fire year
+# trees_fire_55<-trees_fire_33[which(trees_fire_33$MEASYEAR.2<trees_fire_33$MTBS_fireyear
+#                                    & trees_fire_33$MEASYEAR>trees_fire_33$MTBS_fireyear),]
 
 
 one_all<-firstall1 %>% group_by(distrt,rep_std) %>% summarise(n = n())
@@ -97,6 +99,16 @@ tone_mild<-one_mild %>% group_by(distrt) %>% summarise(n = n())
 one_na<-firstall1[is.na(firstall1$rep_std),]
 tone_na<-one_na %>% group_by(distrt) %>% summarise(n = n())
 
+
+one_seva<-one_sev[c("NUNIDS.x","NUNID","distrt")]
+two_seva<-two_sev[c("NUNIDS.x","NUNID","distrt")]
+three_seva<-three_sev[c("NUNIDS.x","NUNID","distrt")]
+
+one_two_sev<-merge(one_seva,two_seva,by="NUNIDS.x",all=TRUE)
+one_two_three_sev<-merge(one_two_sev,three_seva,by="NUNIDS.x",all=TRUE)
+
+
+uuu<-count(one_two_three_sev,distrt.y,distrt)
 
 
 ppp_allb<-merge(tone_sev,tone_mild,by="distrt",all=TRUE)
