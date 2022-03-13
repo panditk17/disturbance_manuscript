@@ -7,9 +7,10 @@ library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
 
-sdam2<-read.csv("new_plot_data.csv")
+sdam2<-read.csv("../disturbance/new_plot_data.csv")
 
 sdam3<-sdam2[which(sdam2$STDAGE_1<250),]
+
 
 
 plot(sdam3$STDAGE_1,sdam3$STDAGE_2)
@@ -54,7 +55,7 @@ sdam42$phy_fac<-as.factor(sdam42$phy_fac)
 sdam42$dist_shift_sh<-as.factor(sdam42$dist_shift_short)
 
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 sdam42$ecocode <- trimws(sdam42$Spl_1, which = c("left"))
 
@@ -74,8 +75,8 @@ sdam43<-sdam42[(sdam42$ecocode %in% ecosel$econew),]
 # sdam44<-sdam43[which(sdam43$FOR_GRP<400),]
 
 
-
-
+juju<-data.frame(table(sdam42$dist_shift,sdam42$damtrt2))
+kuku<-count(sdam42,dist_shift_sh)
 
 library(operators)
 sdam43<-sdam42[(sdam42$ecocode %in% ecosel$econew),]

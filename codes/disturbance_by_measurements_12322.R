@@ -34,7 +34,7 @@ all_plots2<-separate(all_plots1, ECOSUBCD, into = c("Spl_1", "Spl_2"), sep = 4, 
 
 library(tidyverse)
 
-all_plots3<-all_plots2[(all_plots2$Spl_1 %!in% ecosel$econew),]
+all_plots3<-all_plots2[(all_plots2$Spl_1 %in% ecosel$econew),]
 
 all_plots3$damcod<-interaction(all_plots3$cd1,all_plots3$tcd1)
 
@@ -50,12 +50,17 @@ all_plots3$distrt<-ifelse(all_plots3$damcod=="F.C"|all_plots3$damcod=="I.C"|all_
                                                          ifelse(all_plots3$damcod=="ND.OT","OT","other"
                                                          )))))))
 
-# remove.packages("tidyverse")
+ # remove.packages("tidyverse")
 
 require(tidyverse)
-ttt<-count(all_plots3,rep_std,distrt)
 
+ttt<-data.frame(table(all_plots3$rep_std,all_plots3$distrt))
 
+all_plots33<-all_plots3[is.na(all_plots3$rep_std),]
+
+ttt_only_repstd_na<-data.frame(table(all_plots33$distrt))
+
+ttt_only_rep_std_na<-count(all_plots33$distrt)
 
 firstall<-all_plots3 %>% group_by(NUNIDS.x) %>% 
   filter(abs(MEASYEAR) == min(MEASYEAR)) 
@@ -103,13 +108,86 @@ tone_na<-one_na %>% group_by(distrt) %>% summarise(n = n())
 one_seva<-one_sev[c("NUNIDS.x","NUNID","distrt")]
 two_seva<-two_sev[c("NUNIDS.x","NUNID","distrt")]
 three_seva<-three_sev[c("NUNIDS.x","NUNID","distrt")]
+four_seva<-four_sev[c("NUNIDS.x","NUNID","distrt")]
+five_seva<-five_sev[c("NUNIDS.x","NUNID","distrt")]
+
 
 one_two_sev<-merge(one_seva,two_seva,by="NUNIDS.x",all=TRUE)
 one_two_three_sev<-merge(one_two_sev,three_seva,by="NUNIDS.x",all=TRUE)
 
+colnames(one_two_three_sev)<-c("NUNIDS.x","NUNID.a","distrt.a","NUNID.b",
+                               "distrt.b","NUNID.c","distrt.c")
 
-uuu<-count(one_two_three_sev,distrt.y,distrt)
 
+colnames(four_seva)<-c("NUNIDS.x","NUNID.d","distrt.d")
+
+one_two_three_four_sev<-merge(one_two_three_sev,four_seva,by="NUNIDS.x",all=TRUE)
+
+
+colnames(five_seva)<-c("NUNIDS.x","NUNID.e","distrt.e")
+
+one_to_five_sev<-merge(one_two_three_four_sev,five_seva,by="NUNIDS.x",all=TRUE)
+
+
+
+
+uuu<-count(one_to_five_sev,distrt.a,distrt.b,distrt.c,distrt.d,distrt.e)
+
+uuu<-count(one_to_five_sev,distrt.b,distrt.c,distrt.d)
+
+uuu1<-count(one_two_three_sev,distrt.b,distrt.c)
+
+
+uuu$all_dist<-paste0(uuu$distrt.a,uuu$distrt.b,uuu$distrt.c,uuu$distrt.d,uuu$distrt.e)
+uuu$all_dist<-paste0(uuu$distrt.b,",",uuu$distrt.c,",",uuu$distrt.d)
+
+uuu1$all_dist<-paste0(uuu1$distrt.c,",",uuu1$distrt.d)
+
+one_to_five_sev$all_dist<-paste0(one_to_five_sev$distrt.b,",",one_to_five_sev$distrt.c,",",one_to_five_sev$distrt.d)
+
+one_two_three_sev$all_dist<-paste0(one_two_three_sev$distrt.b,",",one_two_three_sev$distrt.c)
+
+
+sss<-count(one_to_five_sev,all_dist)
+
+sss1<-count(one_two_three_sev,all_dist)
+
+vvv<-sss[which(sss$n>10),]
+vvv1<-sss1[which(sss1$n>5),]
+
+ggplot()+
+  geom_bar(vvv,aes(x=all_dist,y=stat(n)))
+
+vvv<-vvv[which(vvv$all_dist!="NA,NA,NA"),]
+
+
+
+library(ggplot2)
+ggplot() + 
+  geom_point(data=vvv1,aes(x=all_dist,y=n),alpha=0.5)+
+ 
+  
+  ylab("number of plots")+
+  
+  xlab("disturbance during second, third and fourth measurements")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(one_to_five_sev, aes(x = factor(all_dist))) +
+  geom_bar()
+
+
+hist(table(vvv), freq=TRUE, xlab = levels(vvv), ylab = "Frequencies")
+
+barplot(prop.table(table(one_to_five_sev)))
+
+ggplot(data.frame(one_to_five_sev), aes(x=all_dist)) +
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+plot(sss$all_dist,sss$n)
+
+hist(vvv$all_dist, sort.group = "decreasing", cum.percent = TRUE)
 
 ppp_allb<-merge(tone_sev,tone_mild,by="distrt",all=TRUE)
 ppp_allc<-merge(ppp_allb,tone_na,by="distrt",all=TRUE)

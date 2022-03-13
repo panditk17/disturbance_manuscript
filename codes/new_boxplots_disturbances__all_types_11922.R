@@ -11,27 +11,54 @@ library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
 
+# 
+# data_ND<-read.csv("../disturbance/plots_not_disturbed.csv")
+# data_FCI_sev<-read.csv("../disturbance/plots_severe_dist_FCI.csv")
+# data_FCI_mild<-read.csv("../disturbance/plots_mild_dist_FCI.csv")
+# 
+# data_ND$distype<-"ND"
+# data_FCI_sev$distype<-"Severe"
+# data_FCI_mild$distype<-"Mild"
+# 
+# dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
+# 
+# 
+# seedling1<-readRDS("../disturbance/all_seedlings_first.RDS")
+# seedling2<-readRDS("../disturbance/all_seedlings_second.RDS")
+# 
+# 
+# 
+# dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
+# sdam21<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
+# 
+# 
+# plot_data<-read.csv("../../data/PLOT.csv")
+# cond_data<-read.csv("../../data/COND.csv")
+# 
+# # plot_data1<-plot_data[c("STDSZCD","STATECD","UNITCD","COUNTYCD","PLOT","INVYEAR")]
+# 
+# cond_data1<-cond_data[c("STDSZCD","STATECD","UNITCD","COUNTYCD",
+#                         "PLOT","INVYR","CONDPROP_UNADJ")]
+# 
+# cond_data1$cplotidyr<-paste0(cond_data1$STATECD,"-",cond_data1$UNITCD,"-",
+#                              cond_data1$COUNTYCD,"-",cond_data1$PLOT,"-",cond_data1$INVYR)
+# remove.packages("tidyverse")
+# library(tidyverse)
+# library(dplyr)
+# cond_sel <- cond_data1 %>%                                      # Top N highest values by group
+#   arrange(desc(CONDPROP_UNADJ)) %>% 
+#   group_by(cplotidyr) %>%
+#   slice(1)
 
-data_ND<-read.csv("plots_not_disturbed.csv")
-data_FCI_sev<-read.csv("plots_severe_dist_FCI.csv")
-data_FCI_mild<-read.csv("plots_mild_dist_FCI.csv")
 
-data_ND$distype<-"ND"
-data_FCI_sev$distype<-"Severe"
-data_FCI_mild$distype<-"Mild"
+# sdam1<-merge(sdam21,cond_sel,by.x="NUNID_1",by.y="cplotidyr")
 
-dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
-
-
-seedling1<-readRDS("all_seedlings_first.RDS")
-seedling2<-readRDS("all_seedlings_second.RDS")
-
-
-
-dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
-sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
-
-
+# write.csv(sdam1,"../../data/data_with_disturbance_3_12.csv")
+sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
+jkk<-sdam1[which(sdam1$distype=="Mild"),]
+jkk1<-jkk[which(jkk$AGB.1<250),]
+# 
+plot(jkk$AGB.1)
 
 sdam1$seed_count.1[is.na(sdam1$seed_count.1)] <- 0
 sdam1$seed_count.2[is.na(sdam1$seed_count.2)] <- 0
@@ -52,7 +79,11 @@ sdam1$sdsp_rh_ch<-sdam1$sd_spp_rich.2-sdam1$sd_spp_rich.1
 
 sdam1<-sdam1[which(sdam1$STDAGE_1<250),]
 
-
+# library(operators)
+# library(reshape2)
+# 
+# library(dplyr)
+# remove.packages("dplyr")
 sdam2<-separate(sdam1, ECOSUBCD, into = c("Spl_1", "Spl_2"), 
                sep = 4, remove = FALSE)
 
@@ -67,7 +98,7 @@ sdam2<-sdam2[which(sdam2$st!=15),]
 sdam2<-sdam2[which(sdam2$st<57 |sdam2$st>70 |sdam2$st==6),]
 
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 sdam2$ecocode <- trimws(sdam2$Spl_1, which = c("left"))
 
@@ -613,27 +644,27 @@ library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
 
-
-data_ND<-read.csv("plots_not_disturbed.csv")
-data_FCI_sev<-read.csv("plots_severe_dist_FCI.csv")
-data_FCI_mild<-read.csv("plots_mild_dist_FCI.csv")
-
-data_ND$distype<-"ND"
-data_FCI_sev$distype<-"Severe"
-data_FCI_mild$distype<-"Mild"
-
-dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
-
-
-seedling1<-readRDS("all_seedlings_first.RDS")
-seedling2<-readRDS("all_seedlings_second.RDS")
-
-
-
-dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
-sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
-
-
+# 
+# data_ND<-read.csv("plots_not_disturbed.csv")
+# data_FCI_sev<-read.csv("plots_severe_dist_FCI.csv")
+# data_FCI_mild<-read.csv("plots_mild_dist_FCI.csv")
+# 
+# data_ND$distype<-"ND"
+# data_FCI_sev$distype<-"Severe"
+# data_FCI_mild$distype<-"Mild"
+# 
+# dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
+# 
+# 
+# seedling1<-readRDS("all_seedlings_first.RDS")
+# seedling2<-readRDS("all_seedlings_second.RDS")
+# 
+# 
+# 
+# dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
+# sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
+# 
+sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
 sdam1$seed_count_con.1[is.na(sdam1$seed_count_con.1)] <- 0
 sdam1$seed_count_con.2[is.na(sdam1$seed_count_con.2)] <- 0
 sdam1$sd_spp_rich_con.1[is.na(sdam1$sd_spp_rich_con.1)] <- 0
@@ -654,13 +685,13 @@ sdam1$seed_count.2<-sdam1$seed_count_con.2*74.96*2.471
 sdam1$seed_ct_ch<-sdam1$seed_count.2-sdam1$seed_count.1
 sdam1$sdsp_rh_ch<-sdam1$sd_spp_rich.2-sdam1$sd_spp_rich.1
 
-sdam1<-sdam1[which(sdam1$STDAGE_1<250),]
+ sdam1<-sdam1[which(sdam1$STDAGE_1<250),]
 
 
 sdam2<-separate(sdam1, ECOSUBCD, into = c("Spl_1", "Spl_2"), 
                 sep = 4, remove = FALSE)
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 sdam2$ecocode <- trimws(sdam2$Spl_1, which = c("left"))
 
@@ -668,7 +699,7 @@ library(operators)
 sdam3<-sdam2[(sdam2$ecocode %in% ecosel$econew),]
 
 # 
-source("FTGC.R")
+source("../disturbance/FTGC.R")
 sdam3$FOR_GRP<-FTGC(sdam3$FORTYPCD_1)
 
 sdam4<-sdam3[which(sdam3$FOR_GRP<400),]
@@ -1177,28 +1208,28 @@ library(tidyr)
 library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
+# 
+# 
+# data_ND<-read.csv("plots_not_disturbed.csv")
+# data_FCI_sev<-read.csv("plots_severe_dist_FCI.csv")
+# data_FCI_mild<-read.csv("plots_mild_dist_FCI.csv")
+# 
+# data_ND$distype<-"ND"
+# data_FCI_sev$distype<-"Severe"
+# data_FCI_mild$distype<-"Mild"
+# 
+# dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
+# 
+# 
+# seedling1<-readRDS("all_seedlings_first.RDS")
+# seedling2<-readRDS("all_seedlings_second.RDS")
+# 
+# 
+# 
+# dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
+# sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
 
-
-data_ND<-read.csv("plots_not_disturbed.csv")
-data_FCI_sev<-read.csv("plots_severe_dist_FCI.csv")
-data_FCI_mild<-read.csv("plots_mild_dist_FCI.csv")
-
-data_ND$distype<-"ND"
-data_FCI_sev$distype<-"Severe"
-data_FCI_mild$distype<-"Mild"
-
-dam1<-rbind(data_ND,data_FCI_sev,data_FCI_mild)
-
-
-seedling1<-readRDS("all_seedlings_first.RDS")
-seedling2<-readRDS("all_seedlings_second.RDS")
-
-
-
-dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
-sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
-
-
+sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
 sdam1$seed_count.1[is.na(sdam1$seed_count.1)] <- 0
 sdam1$seed_count.2[is.na(sdam1$seed_count.2)] <- 0
 sdam1$sd_spp_rich.1[is.na(sdam1$sd_spp_rich.1)] <- 0
@@ -1222,7 +1253,7 @@ sdam1<-sdam1[which(sdam1$STDAGE_1<250),]
 sdam2<-separate(sdam1, ECOSUBCD, into = c("Spl_1", "Spl_2"), 
                 sep = 4, remove = FALSE)
 
-ecosel<-read.csv("eco_select.csv")
+ecosel<-read.csv("../disturbance/eco_select.csv")
 
 sdam2$ecocode <- trimws(sdam2$Spl_1, which = c("left"))
 
