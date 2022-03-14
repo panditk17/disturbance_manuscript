@@ -10,8 +10,10 @@ library(tidyr)
 library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
+minage<-20
+stocking<-c(1,2,3)
 
-# 
+#
 # data_ND<-read.csv("../disturbance/plots_not_disturbed.csv")
 # data_FCI_sev<-read.csv("../disturbance/plots_severe_dist_FCI.csv")
 # data_FCI_mild<-read.csv("../disturbance/plots_mild_dist_FCI.csv")
@@ -25,14 +27,13 @@ memory.limit(size=100000000)
 # 
 # seedling1<-readRDS("../disturbance/all_seedlings_first.RDS")
 # seedling2<-readRDS("../disturbance/all_seedlings_second.RDS")
-# 
-# 
-# 
+# #
+# #
+# #
 # dam111<-merge(dam1,seedling1,by.x="NUNID_1",by.y="NUNID",all.x=TRUE)
 # sdam21<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
 # 
 # 
-# plot_data<-read.csv("../../data/PLOT.csv")
 # cond_data<-read.csv("../../data/COND.csv")
 # 
 # # plot_data1<-plot_data[c("STDSZCD","STATECD","UNITCD","COUNTYCD","PLOT","INVYEAR")]
@@ -43,22 +44,27 @@ memory.limit(size=100000000)
 # cond_data1$cplotidyr<-paste0(cond_data1$STATECD,"-",cond_data1$UNITCD,"-",
 #                              cond_data1$COUNTYCD,"-",cond_data1$PLOT,"-",cond_data1$INVYR)
 # remove.packages("tidyverse")
+# remove.packages("dplyr")
 # library(tidyverse)
 # library(dplyr)
 # cond_sel <- cond_data1 %>%                                      # Top N highest values by group
-#   arrange(desc(CONDPROP_UNADJ)) %>% 
+#   arrange(desc(CONDPROP_UNADJ)) %>%
 #   group_by(cplotidyr) %>%
 #   slice(1)
-
-
-# sdam1<-merge(sdam21,cond_sel,by.x="NUNID_1",by.y="cplotidyr")
-
+# 
+# cond_sel2<-cond_sel[c("cplotidyr","STDSZCD")]
+# 
+# sdam1<-merge(sdam21,cond_sel2,by.x="NUNID_1",by.y="cplotidyr")
+# 
 # write.csv(sdam1,"../../data/data_with_disturbance_3_12.csv")
 sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
 jkk<-sdam1[which(sdam1$distype=="Mild"),]
 jkk1<-jkk[which(jkk$AGB.1<250),]
 # 
 plot(jkk$AGB.1)
+
+sdam1<-sdam1[which(sdam1$STDSZCD<5),]
+sdam1<-sdam1[!(sdam1$STDAGE_1<20),]
 
 sdam1$seed_count.1[is.na(sdam1$seed_count.1)] <- 0
 sdam1$seed_count.2[is.na(sdam1$seed_count.2)] <- 0
@@ -665,6 +671,10 @@ memory.limit(size=100000000)
 # sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
 # 
 sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
+
+sdam1<-sdam1[which(sdam1$STDSZCD<5),]
+sdam1<-sdam1[!(sdam1$STDAGE_1<20),]
+
 sdam1$seed_count_con.1[is.na(sdam1$seed_count_con.1)] <- 0
 sdam1$seed_count_con.2[is.na(sdam1$seed_count_con.2)] <- 0
 sdam1$sd_spp_rich_con.1[is.na(sdam1$sd_spp_rich_con.1)] <- 0
@@ -1230,6 +1240,9 @@ memory.limit(size=100000000)
 # sdam1<-merge(dam111,seedling2,by.x="NUNID_2",by.y="NUNID",all.x=TRUE)
 
 sdam1<-read.csv("../../data/data_with_disturbance_3_12.csv")
+sdam1<-sdam1[which(sdam1$STDSZCD<5),]
+sdam1<-sdam1[!(sdam1$STDAGE_1<20),]
+
 sdam1$seed_count.1[is.na(sdam1$seed_count.1)] <- 0
 sdam1$seed_count.2[is.na(sdam1$seed_count.2)] <- 0
 sdam1$sd_spp_rich.1[is.na(sdam1$sd_spp_rich.1)] <- 0
