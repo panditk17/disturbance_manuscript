@@ -27,7 +27,8 @@ library(dplyr)
 conds<-read.csv("../../data/COND.csv")
 
 cond_all<-conds %>% select(PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,PLOT,CONDID,
-                          FORTYPCD,STDAGE,FLDAGE,FLDSZCD,SITECLCD,SICOND,STDORGCD,SLOPE,
+                          FORTYPCD,STDAGE,FLDAGE,FLDSZCD,SITECLCD,SICOND,
+                          STDORGCD,STDSZCD,SLOPE,
                           ASPECT,DSTRBCD1,DSTRBYR1,DSTRBCD2,DSTRBYR2,DSTRBCD3,
                           DSTRBYR3,TRTCD1,TRTYR1,TRTCD2,TRTYR2,TRTCD3,TRTYR3,
                           BALIVE)
@@ -63,7 +64,7 @@ saveRDS(tree_cond_plot,"../../data/tree_cond_plot_all_true.RDS")
 
 alltreex<-count(tree_cond_plot,tplotid)
 alltreexyr<-count(tree_cond_plot,tplotidyr)
-
+all_plot_n<-count(alltreexyr,tplotidyr)
 
 tree_cond_plot$pplotid<-paste0(tree_cond_plot$STATECD,"-",tree_cond_plot$UNITCD,"-",
                                tree_cond_plot$COUNTYCD,"-",tree_cond_plot$PLOT)
@@ -75,7 +76,6 @@ jkjk<-count(tree_cond_plot,pplotid,tplotid)
 
 plots_with_no_tree<-jkjk[is.na(jkjk$tplotid),]
 
-sums<-sum(dfdf$n)
 
 sr<-tree_cond_plot
 rm(tree_cond_plot)
@@ -91,7 +91,6 @@ plots_with_tree<-plots_all_a[!is.na(plots_all_a$tplotid),]
 
 write.csv(plots_with_tree,"../data/plots_with_tree.csv")
 
-plots_with_tree<-
 
 srsr1<-count(sr1,pplotid)
 srsr1y<-count(sr1,pplotidyr)
@@ -135,11 +134,16 @@ nosecondall<-nofirstall %>% group_by(NUNIDS) %>%
 thirdall<-nosecondall %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) == min(MEASYEAR))
 
+third_p1<-count(thirdall,pplotid)
+third_p1all<-count(thirdall,pplotidyr)
+
 nothirdall<-nosecondall %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) != min(MEASYEAR))
 
 fourthall<-nothirdall %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) == min(MEASYEAR))
+fourth_p1<-count(fourthall,pplotid)
+fourth_p1all<-count(fourthall,pplotidyr)
 
 nofourthall<-nothirdall %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) != min(MEASYEAR))
@@ -171,10 +175,8 @@ dataall123<-merge(dataall12,thirdall, by="TREEID",all=TRUE)
 saveRDS(dataall123,"../../data/all_three_repeated_tree1.RDS")
 
 
-ppp12<-count(dataall1234,NUNIDS.y)
-
 rm(dataall12)
-rm(thridall)
+rm(thirdall)
 
 
 dataall1234<-merge(dataall123,fourthall, by="TREEID",all=TRUE)
@@ -201,14 +203,6 @@ dataall56<-readRDS("../../data/all_states_fivesix.RDS")
 
 
 memory.limit(size=10000000000)
-
-
-
-saveRDS(dataall1234,"all_states_tree_repekated_3_4_times.RDS")
-rm(dataall12)
-rm(dataall34)
-
-dataall56<-merge(fifthall,sixthall,by="TREEID",all=TRUE,suffixes=c(".5",".6"))
 
 
 

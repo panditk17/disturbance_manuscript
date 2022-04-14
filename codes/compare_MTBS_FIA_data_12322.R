@@ -1,4 +1,4 @@
-setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
+# setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
 
 rm(list=ls())
 
@@ -7,7 +7,7 @@ library(dplyr)
 library(reshape2)
 memory.limit(size=100000000)
 
-tr<-readRDS("../../data/all_three_repeated_tree.RDS")
+tr<-readRDS("../../data/all_four_repeated_tree1.RDS")
 
 trfr$rep_std.2<-ifelse(trfr$STDAGE.2 <= trfr$REMPER.2,1,0)
 trfr$rep_std.3<-ifelse(trfr$STDAGE <= trfr$REMPER,1,0)
