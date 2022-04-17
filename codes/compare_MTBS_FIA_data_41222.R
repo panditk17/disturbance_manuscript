@@ -1,4 +1,5 @@
-
+## codes to combine FIA data and MTBS data
+## updated on April 20222
 rm(list=ls())
 
 library(tidyr)
