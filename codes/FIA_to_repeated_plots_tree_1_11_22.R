@@ -6,14 +6,15 @@
 rm(list=ls())
 memory.limit(size=1000000000)
 
-remove.packages("tidyverse")
-install.packages("tidyverse")
+# remove.packages("tidyverse")
+# install.packages("tidyverse")
 library(tidyverse)
 
 plots<-read.csv("../../data/PLOT.CSV")
 plots_all<-plots %>% select(CN,PREV_PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,
                             PLOT,PLOT_STATUS_CD,MEASYEAR,REMPER,LAT,LON,ELEV,
                             ECOSUBCD,KINDCD,DESIGNCD)
+jjj<-count(plots_all,STATECD)
 rm(plots)
 
 plots_all$pplotid<-paste0(plots_all$STATECD,"-",plots_all$UNITCD,"-",
@@ -26,12 +27,16 @@ library(dplyr)
 
 conds<-read.csv("../../data/COND.csv")
 
+
+
 cond_all<-conds %>% select(PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,PLOT,CONDID,
                           FORTYPCD,STDAGE,FLDAGE,FLDSZCD,SITECLCD,SICOND,
                           STDORGCD,STDSZCD,SLOPE,
                           ASPECT,DSTRBCD1,DSTRBYR1,DSTRBCD2,DSTRBYR2,DSTRBCD3,
                           DSTRBYR3,TRTCD1,TRTYR1,TRTCD2,TRTYR2,TRTCD3,TRTYR3,
                           BALIVE)
+
+hhh<-count(cond_all,STATECD)
 rm(conds)
 cond_all$cplotid<-paste0(cond_all$STATECD,"-",cond_all$UNITCD,"-",
                          cond_all$COUNTYCD,"-",cond_all$PLOT)
@@ -39,10 +44,13 @@ cond_all$cplotidyr<-paste0(cond_all$STATECD,"-",cond_all$UNITCD,"-",
                            cond_all$COUNTYCD,"-",cond_all$PLOT,"-",cond_all$INVYR)
 
 filt_cond<-cond_all[which(cond_all$CONDID==1),]
+
+iii<-count(filt_cond,STATECD)
 rm(cond_all)
 
 tree_all<-readRDS("../../data/subset_tree_all.RDS") # subset of tree table with
-                                                  # selected columns          
+                                                  # selected columns  
+kkk<-count(tree_all,STATECD)
 
 tree_all$tplotid<-paste0(tree_all$STATECD,"-",tree_all$UNITCD,"-",
                          tree_all$COUNTYCD,"-",tree_all$PLOT)
@@ -51,6 +59,8 @@ tree_all$tplotidyr<-paste0(tree_all$STATECD,"-",tree_all$UNITCD,"-",
 
 tree_cond<-merge(tree_all,filt_cond,by.x="tplotidyr",by.y="cplotidyr",
                  suffixes=c(".TR",".CND"),all=TRUE)
+
+lll<-count(tree_cond,STATECD)
 rm(tree_all)
 rm(filt_cond)
 
@@ -60,7 +70,9 @@ rm(tree_cond)
 rm(plots_all)
 #save file
 saveRDS(tree_cond_plot,"../../data/tree_cond_plot_all_true.RDS")
-# tree_cond_plot<-readRDS("../tree_cond_plot_all_true.RDS")
+tree_cond_plot<-readRDS("../../data/tree_cond_plot_all_true.RDS")
+
+mmm<-count(tree_cond_plot,STATECD)
 
 alltreex<-count(tree_cond_plot,tplotid)
 alltreexyr<-count(tree_cond_plot,tplotidyr)
@@ -81,9 +93,15 @@ sr<-tree_cond_plot
 rm(tree_cond_plot)
 
 sr2<-sr[which(sr$DESIGNCD==1),]
-sr1<-sr2[which(sr2$KINDCD==1|sr2$KINDCD==2),]
+sss<-count(sr,STATECD,DESIGNCD)
 
-plots_all<-count(sr1,pplotid)
+sr3<-sr[which(sr$KINDCD==1|sr$KINDCD==2),]
+
+ttt<-count(sr3,STATECD,KINDCD)
+
+uuu<-count(sr3,STATECD,DESIGNCD)
+
+plots_all<-count(sr,pplotid)
 plots_all_a<-count(sr1,pplotid,tplotid)
 
 
@@ -95,12 +113,13 @@ write.csv(plots_with_tree,"../data/plots_with_tree.csv")
 srsr1<-count(sr1,pplotid)
 srsr1y<-count(sr1,pplotidyr)
 
+sr<-sr3
 rm(sr2)
-sr<-sr1
 
-plot11<-count(sr1,pplotid)
+
 
 rm(sr1)
+nnn<-count(sr,STATECD.TR)
 
 sr$uplotid<-paste0(sr$STATECD.CND,"-",sr$UNITCD.CND,"-",
                    sr$COUNTYCD.CND,"-",sr$PLOT.CND)

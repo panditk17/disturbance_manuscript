@@ -4,7 +4,7 @@ rm(list=ls())
 library(tidyr)
 library(dplyr)
 library(reshape2)
-memory.limit(size=100000000)
+memory.limit(size=100000000000)
 
 tr<-readRDS("../../data/all_four_repeated_tree1.RDS")
 
@@ -21,31 +21,23 @@ fire$nplotid_cp<-fire$nplotid
 
 # merge tree table with MTBS fire data
 trfr<-merge(tr,fire,by.x="NUNIDS.2",by.y="nplotid",all=TRUE)
+# trfra<-merge(tr,fire,by.x="NUNIDS.2",by.y="nplotid")
 
 rm(tr)
 
-
 trfr$dist1<-ifelse(trfr$DSTRBCD1.1>0 & !is.na (trfr$DSTRBCD1.1),1,0)
-
 trfr$dist2<-ifelse(trfr$DSTRBCD1.2>0 & !is.na (trfr$DSTRBCD1.2),1,0)
-
 trfr$dist3<-ifelse(trfr$DSTRBCD1.x>0 & !is.na (trfr$DSTRBCD1.x),1,0)
-
 trfr$dist4<-ifelse(trfr$DSTRBCD1.y>0 & !is.na (trfr$DSTRBCD1.y),1,0)
-
 trfr$trt1<-ifelse(trfr$TRTCD1.1>0 & !is.na (trfr$TRTCD1.1),1,0)
-
 trfr$trt2<-ifelse(trfr$TRTCD1.2>0 & !is.na (trfr$TRTCD1.2),1,0)
-
 trfr$trt3<-ifelse(trfr$TRTCD1.x>0 & !is.na (trfr$TRTCD1.x),1,0)
-
 trfr$trt4<-ifelse(trfr$TRTCD1.y>0 & !is.na (trfr$TRTCD1.y),1,0)
 
 ## remove disturbed and treated plots in first inventory
 
 trfr$dist1234<-interaction(trfr$dist1,trfr$dist2,trfr$dist3,trfr$dist4)
 trfr$trt1234<-interaction(trfr$trt1,trfr$trt2,trfr$trt3,trfr$trt4)
-
 
 trfr$D1<-ifelse(trfr$dist1234=="1.0.0.0","IDND",
                 ifelse(trfr$dist1234=="1.1.0.0"|
@@ -108,6 +100,7 @@ trees_fia_first1<-select(trees_fia_first,-c("NUNIDS.1"))
 
 rm(data_dist1)
 rm(trees_fia_first)
+rm(trfr_a)
 write.csv(trees_fia_first1,"trees_fia_first1.csv")
 
 colnames<-colnames(trees_fia_first1)
@@ -274,6 +267,10 @@ rm(data_dist2)
 rm(trees_fia_second)
 write.csv(trees_fia_second1,"trees_fia_second1.csv")
 
+first_fia<-read.csv("trees_fia_first1.csv")
+colnames<-colnames(first_fia)
+colnames<-colnames[-1]
+
 colnames(trees_fia_second1)<-colnames
 
 age_tr2<-trees_fia_second1[!is.na(trees_fia_second1$STDAGE.2),]
@@ -422,7 +419,8 @@ write.csv(pdam16_second,"pdam16_second.csv")
 rm(data_dist2)
 rm(trees_fia_second1)
 rm(tr)
-
+rm(trfr_a)
+rm(trfr)
 data_dist3<-trfr_b[which(trfr_b$D1T1=="ND.NT"|trfr_b$D1T1=="NDTD.NT"|
                            trfr_b$D1T1=="ND.NTTT"),]
 
@@ -434,10 +432,18 @@ trees_fia_third<-cbind(data_dist3[,1:2],data_dist3[,148:293],data_dist3[,294:319
 trees_fia_third1<-select(trees_fia_third,-c("NUNIDS.x","NUNIDS.y"))
 
 
-rm(trees_fia_first1)
 rm(data_dist3)
 rm(trees_fia_third)
 write.csv(trees_fia_third1,"trees_fia_third1.csv")
+
+# colnamesb<-read.table("pdam16_first.csv",
+#                       head = TRUE,
+#            nrows = 1,
+#            sep = ";")[- 1, ]
+
+colnamesb<-colnames(read.csv("trees_fia_first1.csv"))
+# colnames<-colnames(first_fia)
+colnames<-colnamesb[-1]
 
 colnames(trees_fia_third1)<-colnames
 
@@ -610,6 +616,7 @@ plots_all<-rbind(plots_first,plots_second,plots_third)
 
 plots_all$dist_all<-interaction(plots_all$CUT,plots_all$FIRE_ALL,plots_all$INSDIS)
 
+qqq1<-count(plots_all,dist_all)
 fire_code<-c(30,31,32)
 insdis_code<-c(10,11,12,20,21,22)
 plots_all$dist_all2<-ifelse(plots_all$dist_all=="0.1.1" & 
@@ -626,9 +633,17 @@ plots_all$insdis1<-ifelse(plots_all$dist_all2=="0.0.1",1,0)
 qqq<-count(plots_all, dist_all2)
 
 
+plots_all$all_dsttrt<-ifelse(plots_all$DSTRBCD1.2>0 | plots_all$DSTRBCD2.2>0
+                             | plots_all$DSTRBCD3.2>0 | plots_all$TRTCD1.2>0
+                             | plots_all$TRTCD2.2>0 | plots_all$TRTCD3.2>0,1,0)
 
-plots_all<-plots_all[which(plots_all$STDSZCD.2<5),]
-plots_all1<-plots_all[which(plots_all$STDAGE.1>=20),]
+qqq<-count(plots_all,all_dsttrt,cut1,fire1,insdis1)
+
+
+plots_all<-plots_all[which(plots_all$STDSZCD.1<5),]
+plots_all<-plots_all[which(plots_all$STDAGE.1>=20),]
+
+qqq3<-count(plots_all,all_dsttrt,cut1,fire1,insdis1)
 
 plots_all$rep_std_fia<-ifelse(plots_all$STDAGE.1>plots_all$STDAGE.2 &
                               plots_all$STDAGE.2<=plots_all$REMPER.2,1,0)
@@ -636,11 +651,7 @@ plots_all$rep_std_fia<-ifelse(plots_all$STDAGE.1>plots_all$STDAGE.2 &
 plots_all$rep_std_fia2<-ifelse(plots_all$STDAGE.2<=plots_all$REMPER.2,1,0)
 
 
-
-all_dist_sev<-count(plots_all,cut1,fire1,insdis1,rep_std_fia)
-all_dist_sev2<-count(plots_all,cut1,fire1,insdis1,rep_std_fia2)
-
-pdam18<-separate(plots_all1, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
+pdam18<-separate(plots_all, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
 
 sdam2b<-separate(pdam18, NUNIDS.2, 
                  into = c("st","cty","unt","pl"), remove = FALSE)
@@ -652,6 +663,8 @@ sdam2<-sdam2[which(sdam2$st!=15),]
 
 sdam2<-sdam2[which(sdam2$st<57 |sdam2$st>70 |sdam2$st==6),]
 
+qqq4<-count(sdam2,all_dsttrt,cut1,fire1,insdis1)
+
 
 ecosel<-read.csv("../disturbance/eco_select.csv")
 
@@ -662,26 +675,19 @@ sdam3b<-sdam2[(sdam2$ecocode %in% ecosel$econew),]
 sdam3a<-sdam2[(sdam2$ecocode %!in% ecosel$econew),]
 
 
-fire_types_west<-count(sdam3b,fire1,rep_stand_all2)
-cut_types_west<-count(sdam3b,cut1,rep_stand_all2)
+qqq5<-count(sdam3a,all_dsttrt,cut1,fire1,insdis1)
+qqq6<-count(sdam3b,all_dsttrt,cut1,fire1,insdis1)
 
-insdis_types_west<-count(sdam3b,insdis1,rep_stand_all2)
 
-fire_types_east<-count(sdam3a,fire1,rep_stand_all2)
+table_dist_sev_west<-count(sdam3b,fire1,cut1,insdis1,rep_std_fia2)
 
-cut_types_east<-count(sdam3a,cut1,rep_stand_all2)
-
-insdis_types_east<-count(sdam3a,insdis1,rep_stand_all2)
-
-table_dist_sev_west<-count(sdam3b,fire1,cut1,insdis1,rep_stand_all2)
-
-table_dist_sev_east<-count(sdam3a,fire1,cut1,insdis1,rep_stand_all2)
+table_dist_sev_east<-count(sdam3a,fire1,cut1,insdis1,rep_std_fia2)
 
 
 
+table_AGB<-cbind(table_dist_sev_west,table_dist_sev_east)
 
-
-
+write.csv(table_AGB,"disturbances_for_AGB.csv")
 
 plots_first<-read.csv("pdam16_first.csv")
 plots_first$time<-"1"
@@ -692,17 +698,112 @@ plots_third$time<-"3"
 plots_all_three<-rbind(plots_first,plots_second,plots_third)
 
 
-seedling_all<-readRDS("all_seedlings_pre_post.RDS")
-
-seedling_all$plotidyr.x<-paste0(seedling_all$NUNIDS,"-",seedling_all$INVYR.x)
-seedling_all$plotidyr.y<-paste0(seedling_all$NUNIDS,"-",seedling_all$INVYR.y)
 
 
-plots_all<-merge(plots_all_three,seedling_all,
-                 by.x="NUNID.2",by.y="plotidyr.y")
+seedling_all<-read.csv("../data/SEEDLING.CSV")
 
 
-# plots_all$sd_spp_rich.2[is.na(plots_all$sd_spp_rich.2)] <- 0
+seedling_all$nunid<-paste0(seedling_all$STATECD,"-",seedling_all$UNITCD,"-",
+                           seedling_all$COUNTYCD,"-", seedling_all$PLOT,
+                           "-",seedling_all$INVYR)
+
+
+
+fplot1<-aggregate(TREECOUNT~nunid, seedling_all, FUN=sum)
+fplot3<-count(seedling_all,nunid,SPCD)
+fplot4<-count(fplot3,nunid)
+
+fdam1<-merge(fplot1,fplot4,by="nunid")
+
+seedling_all$con<-ifelse(seedling_all$SPGRPCD<25|seedling_all$SPGRPCD==51|
+                           seedling_all$SPGRPCD==52,1,0)
+
+seedling12b<-seedling_all[which(seedling_all$con==1),]
+
+fplot7<-aggregate(TREECOUNT~nunid, seedling12b, FUN=sum)
+
+fplot9b<-count(seedling12b,nunid,SPCD)
+fplot9<-count(fplot9b,nunid)
+
+
+fdam4<-merge(fdam1,fplot7,by="nunid",all.x=TRUE)
+
+fdam6<-merge(fdam4,fplot9,by="nunid",all.x=TRUE)
+
+
+colnames(fdam6)<-c("nunid","seed_count","sd_spp_rich",
+                   "seed_count_con","sd_spp_rich_con")
+
+fdam6$nunid_cp<-fdam6$nunid
+fdam6$seed_count_con[is.na(fdam6$seed_count_con)] <- 0
+fdam6$sd_spp_rich_con[is.na(fdam6$sd_spp_rich_con)] <- 0
+
+
+#
+# seedling_data$nunid.1<-paste0(seedling_data$NUNIDS,"-",seedling_data$INVYR.x)
+# seedling_data$nunid.2<-paste0(seedling_data$NUNIDS,"-",seedling_data$INVYR.y)
+
+
+plots_seed_n<-merge(plots_all_three,fdam6,by.x="NUNID.1",by.y="nunid",all.x=TRUE)
+plots_seed_n2<-merge(plots_seed_n,fdam6,by.x="NUNID.2",by.y="nunid",all.x=TRUE)
+
+
+colnames(plots_seed_n2)[35]<-"seed_count.1"
+colnames(plots_seed_n2)[36]<-"sd_spp_rich.1"
+colnames(plots_seed_n2)[37]<-"seed_count_con.1"
+colnames(plots_seed_n2)[38]<-"sd_spp_rich_con.1"
+colnames(plots_seed_n2)[40]<-"seed_count.2"
+colnames(plots_seed_n2)[41]<-"sd_spp_rich.2"
+colnames(plots_seed_n2)[42]<-"seed_count_con.2"
+colnames(plots_seed_n2)[43]<-"sd_spp_rich_con.2"
+
+
+
+# na_first<-plots_seed_n2[is.na(plots_seed_n2$seed_count.1),]
+# na_second<-plots_seed_n2[is.na(plots_seed_n2$seed_count.2),]
+plots_seed<-plots_seed_n2[!is.na(plots_seed_n2$seed_count.2) |
+                                      !is.na (plots_seed_n2$seed_count.1),]
+
+# plots_seed<-merge(sdam12,seedling_data,by.x="NUNID.1",by.y="nunid.1",all.x=TRUE)
+
+plots_seed$seed_count.1[is.na(plots_seed$seed_count.1)] <- 0
+plots_seed$seed_count.2[is.na(plots_seed$seed_count.2)] <- 0
+plots_seed$sd_spp_rich.1[is.na(plots_seed$sd_spp_rich.1)] <- 0
+plots_seed$sd_spp_rich.2[is.na(plots_seed$sd_spp_rich.2)] <- 0
+
+plots_seed$seed_count_con.1[is.na(plots_seed$seed_count_con.1)] <- 0
+plots_seed$seed_count_con.2[is.na(plots_seed$seed_count_con.2)] <- 0
+plots_seed$sd_spp_rich_con.1[is.na(plots_seed$sd_spp_rich_con.1)] <- 0
+plots_seed$sd_spp_rich_con.2[is.na(plots_seed$sd_spp_rich_con.2)] <- 0
+
+plots_seed$seed_count.1<-plots_seed$seed_count.1*74.96*2.471
+plots_seed$seed_count.2<-plots_seed$seed_count.2*74.96*2.471
+
+plots_seed$seed_count_con.1<-plots_seed$seed_count_con.1*74.96*2.471
+plots_seed$seed_count_con.2<-plots_seed$seed_count_con.2*74.96*2.471
+
+
+plots_seed$seed_ct_ch<-plots_seed$seed_count.2-plots_seed$seed_count.1
+plots_seed$sdsp_rh_ch<-plots_seed$sd_spp_rich.2-plots_seed$sd_spp_rich.1
+
+plots_seed$seed_ct_ch_con<-plots_seed$seed_count_con.2-plots_seed$seed_count_con.1
+plots_seed$sdsp_rh_ch_con<-plots_seed$sd_spp_rich_con.2-plots_seed$sd_spp_rich_con.1
+
+# plots_seed$AGB_CHP<-plots_seed$AGB.2-plots_seed$AGB_CHP
+
+
+plots_seed<-plots_seed[which(plots_seed$seed_count.2<50000),]
+
+
+write.csv(plots_seed,"plots_data_with_seedling.csv")
+
+
+
+
+
+
+plots_all<-read.csv("plots_data_with_seedling.csv")
+
 
 
 plots_all$dist_all<-interaction(plots_all$CUT,plots_all$FIRE_ALL,plots_all$INSDIS)
@@ -720,23 +821,17 @@ plots_all$fire1<-ifelse(plots_all$dist_all2=="0.1.0",1,0)
 plots_all$insdis1<-ifelse(plots_all$dist_all2=="0.0.1",1,0)
 
 
-qqq<-count(plots_all, dist_all)
-
-
-
-
 
 qqq2<-count(plots_all, dist_all2)
 
-plots_all$rep_std_fia<-ifelse(plots_all$STDAGE.2<=plots_all$REMPER.2,1,0)
+plots_all<-plots_all[which(plots_all$STDSZCD.1<5),]
+plots_all<-plots_all[which(plots_all$STDAGE.1>=20),]
+
 
 plots_all$rep_std_fia2<-ifelse(plots_all$STDAGE.2<=plots_all$REMPER.2,1,0)
 
-plots_all1<-plots_all[which(plots_all$STDAGE.1>=10),]
 
-cut_n<-count(plots_all,CUT,FIRE_ALL,INSDIS,rep_std_fia2)
-
-pdam18<-separate(plots_all1, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
+pdam18<-separate(plots_all, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
 
 sdam2b<-separate(pdam18, NUNIDS.2, 
                  into = c("st","cty","unt","pl"), remove = FALSE)
@@ -758,66 +853,71 @@ sdam3b<-sdam2[(sdam2$ecocode %in% ecosel$econew),]
 sdam3a<-sdam2[(sdam2$ecocode %!in% ecosel$econew),]
 
 
-fire_types_west<-count(sdam3b,fire1,rep_stand_all2)
-cut_types_west<-count(sdam3b,cut1,rep_stand_all2)
 
-insdis_types_west<-count(sdam3b,insdis1,rep_stand_all2)
+table_dist_sev_west_seed<-count(sdam3b,fire1,cut1,insdis1,rep_std_fia2)
 
-fire_types_east<-count(sdam3a,fire1,rep_stand_all2)
-
-cut_types_east<-count(sdam3a,cut1,rep_stand_all2)
-
-insdis_types_east<-count(sdam3a,insdis1,rep_stand_all2)
-
-table_dist_sev_west<-count(sdam3b,fire1,cut1,insdis1,rep_std_fia2)
-
-table_dist_sev_east<-count(sdam3a,fire1,cut1,insdis1,rep_std_fia2)
-
-
-pdam17<-separate(pdam16, ECOSUBCD.1, into = c("Spl_1", "Spl_2"), sep = 4, remove = FALSE)
-
-# write.csv(pdam17,"all_plots_with_disturb_FIA_ECO1.csv")
+table_dist_sev_east_seed<-count(sdam3a,fire1,cut1,insdis1,rep_std_fia2)
 
 
 
+
+
+table_seedling<-rbind(table_dist_sev_west_seed,table_dist_sev_east_seed)
+write.csv(table_seedling,"table_seedling_dist.csv")
+
+
+###################################
+## find out plots for MTBS data
 
 trees_fire_22<-trfr[trfr$NUNIDS.2 %in% fire$nplotid_cp,]
 
+trees_fire_22b<-merge(trfr,fire,by.x="NUNIDS.2",by.y="nplotid")
+
+
+
 #data with first measurements less than fire year
-trees_fire_33<-trees_fire_22[which(trees_fire_22$MEASYEAR.1<=trees_fire_22$MTBS_fireyear),]
+trees_fire_33<-trees_fire_22[which(trees_fire_22$MEASYEAR.1<trees_fire_22$MTBS_fireyear),]
+
+jjj<-count(trees_fire_33,nplotid_cp)
 
 #data with first measurements less and second measurements greater than fire year
-trees_fire_44<-trees_fire_33[which(trees_fire_33$MEASYEAR.2>=trees_fire_33$MTBS_fireyear),]
+trees_fire_44<-trees_fire_33[which(trees_fire_33$MEASYEAR.2>trees_fire_33$MTBS_fireyear),]
 
 trees_fire_44$time<-1
 
 tablepp<-count(trees_fire_44,NUNIDS.2)
 
-#data with first measurements less than fire year
+#data with second measurements less than fire year
 trees_fire_55<-trees_fire_22[which(trees_fire_22$MEASYEAR.2<=trees_fire_22$MTBS_fireyear),]
 
 trees_fire_66<-trees_fire_55[which(trees_fire_55$MEASYEAR.x>=trees_fire_55$MTBS_fireyear),]
 
 trees_fire_66$time<-2
+
+tableqq<-count(trees_fire_66,NUNIDS.2)
 #data with first measurements less than fire year
 trees_fire_77<-trees_fire_22[which(trees_fire_22$MEASYEAR.x<=trees_fire_22$MTBS_fireyear),]
 
 trees_fire_88<-trees_fire_77[which(trees_fire_77$MEASYEAR.y>=trees_fire_77$MTBS_fireyear),]
 
 trees_fire_88$time<-3
+tablerr<-count(trees_fire_88,NUNIDS.2)
 #data with first &second measureemtns less and third measurements greater than fire year
 # trees_fire_55<-trees_fire_33[which(trees_fire_33$MEASYEAR.2<trees_fire_33$MTBS_fireyear
 #                                & trees_fire_33$MEASYEAR>trees_fire_33$MTBS_fireyear),]
 
+all_selected<-rbind(trees_fire_88,trees_fire_66,trees_fire_44)
 
-trees_data_first<-cbind(trees_fire_44[,1:147],trees_fire_44[,294:312])
+jjkk<-count(all_selected,NUNIDS.2)
+
+trees_data_first<-cbind(trees_fire_44[,1:147],trees_fire_44[,294:318])
 trees_data_first1<-select(trees_data_first,-c("NUNIDS.1"))
 
 
-trees_data_second<-cbind(trees_fire_66[,1:2],trees_fire_66[,76:220],trees_fire_66[,294:312])
+trees_data_second<-cbind(trees_fire_66[,1:2],trees_fire_66[,76:220],trees_fire_66[,294:318])
 trees_data_second1<-select(trees_data_second,-c("NUNIDS.x"))
 
-trees_data_third<-cbind(trees_fire_88[,1:2],trees_fire_88[,148:293],trees_fire_88[,294:312])
+trees_data_third<-cbind(trees_fire_88[,1:2],trees_fire_88[,148:293],trees_fire_88[,294:318])
 trees_data_third1<-select(trees_data_third,-c("NUNIDS.x","NUNIDS.y"))
 
 colnames1<-colnames(trees_data_first1)
@@ -827,16 +927,237 @@ colnames(trees_data_third1)<-colnames1
 
 
 
+
+
+
+
 trees_data_all<-rbind(trees_data_first1,trees_data_second1,trees_data_third1)
 trees_data_all$mtbs_sev1<-ifelse(trees_data_all$sev_mean>2,1,0)
-trees_data_all$first_dis_pres<-ifelse(trees_data_all$DSTRBCD1.1|
-                                        trees_data_all$DSTRBCD2.1|
-                                        trees_data_all$DSTRBCD3.1>0,1,0)
 
-trees_data_all$second_dis_pres<-ifelse(trees_data_all$DSTRBCD1.2|
-                                         trees_data_all$DSTRBCD2.2|
-                                         trees_data_all$DSTRBCD3.2>0,1,0)
-count(trees_data_all,first_dis_pres,second_dis_pres)
+
+
+tr<-trees_data_all
+
+cut_agnt <- c(10)
+
+tr$CUT <- ifelse(tr$TRTCD1.2 %in% cut_agnt | tr$TRTCD2.2 %in% cut_agnt 
+                 | tr$TRTCD3.2 %in% cut_agnt, 1,  0)
+
+fire_agnt <- c(30,31,32)
+
+tr$FIRE_ALL <- ifelse(tr$DSTRBCD1.2 %in% fire_agnt | tr$DSTRBCD2.2 %in% fire_agnt 
+                      | tr$DSTRBCD3.2 %in% fire_agnt, 1,  0)
+
+insdis_agnt <- c(10,11,12,20,21,22)
+tr$INSDIS <- ifelse(tr$DSTRBCD1.2 %in% insdis_agnt | tr$DSTRBCD2.2 %in% insdis_agnt 
+                    | tr$DSTRBCD3.2 %in% insdis_agnt, 1,  0)
+
+tr$DISTURB <- ifelse(tr$DSTRBCD1.2 !=0 | tr$DSTRBCD2.2 !=0 | tr$DSTRBCD3.2 !=0, 1,  0)
+
+
+tr$DISTURB1 <- ifelse(tr$DSTRBCD1.2 !=0,  1,  0)
+tr$DISTURB2 <- ifelse(tr$DSTRBCD2.2 !=0,  1,  0)
+tr$DISTURB3 <- ifelse(tr$DSTRBCD3.2 !=0,  1,  0)
+
+# ntr<-tr[is.na(tr$DRYBIO_BG.1),]
+
+## calculate basal area and AGB
+tr$AGB.2<-ifelse((tr$STATUSCD.2==1),tr$DRYBIO_AG.2*tr$TPA_UNADJ.2,0)
+tr$AGB.1<-ifelse((tr$STATUSCD.1==1),tr$DRYBIO_AG.1*tr$TPA_UNADJ.1,0)
+
+tr$since_fire<-tr$MEASYEAR.2 - tr$r_fire_yr
+tr$mtbs_sev<-ifelse(tr$sev_mean>2,1,0)
+
+table_fia_mtbs<-count(tr,mtbs_sev,FIRE_ALL)
+
+write.csv(tr,"trees_joined_MTBS_FIA.csv")
+
+
+tr<-read.csv("trees_joined_MTBS_FIA.csv")
+
+## calculate plot level variables and disturbances
+library(tidyverse)
+
+pplot1<-aggregate(AGB.2~NUNIDS.2, tr, FUN=sum)
+pplot2<-aggregate(AGB.1~NUNIDS.2, tr, FUN=sum)
+pplot3<-aggregate(BALIVE.2~NUNIDS.2, tr, FUN=mean)
+pplot4<-aggregate(BALIVE.1~NUNIDS.2, tr, FUN=mean)
+pplot5<-data.frame(count(tr,NUNIDS.2,TREEID))
+pplot55<-aggregate(n~NUNIDS.2, pplot5, FUN=sum)
+pplot6<-data.frame(count(tr,NUNIDS.2,STATUSCD.2))
+pplot7<-data.frame(count(tr,NUNIDS.2,STATUSCD.1))
+pplot8<-aggregate(since_fire~NUNIDS.2, tr, FUN=mean)
+pplot9<-aggregate(CUT~NUNIDS.2, tr, FUN=mean)
+pplot10<-aggregate(FIRE_ALL~NUNIDS.2, tr, FUN=mean)
+pplot11<-aggregate(INSDIS~NUNIDS.2, tr, FUN=mean)
+pplot12<-aggregate(G_FIRE~NUNIDS.2, tr, FUN=mean)
+pplot13<-aggregate(C_FIRE~NUNIDS.2, tr, FUN=mean)
+pplot13a<-aggregate(N_FIRE~NUNIDS.2, tr, FUN=mean)
+
+pplot14<-aggregate(LAT.2~NUNIDS.2, tr, FUN=mean)
+pplot15<-aggregate(LON.2~NUNIDS.2, tr, FUN=mean)
+
+pplot16<-aggregate(mtbs_sev~NUNIDS.2, tr, FUN=mean)
+
+pplot17<-aggregate(REMPER.2~NUNIDS.2, tr, FUN=mean)
+pplot18<-aggregate(rep_stand_all2~NUNIDS.2, tr, FUN=max)
+pplot19<-aggregate(MEASYEAR.2~NUNIDS.2, tr, FUN=max)
+pplot19b<-aggregate(MEASYEAR.1~NUNIDS.2, tr, FUN=max)
+
+
+pplot20<-aggregate(STDAGE.2~NUNIDS.2, tr, FUN=max)
+pplot20b<-aggregate(STDAGE.1~NUNIDS.2, tr, FUN=max)
+
+pplot21<-aggregate(DISTURB~NUNIDS.2, tr, FUN=mean)
+
+pplot22<-aggregate(STDORGCD.1~NUNIDS.2, tr, FUN=max)
+pplot23<-aggregate(STDORGCD.2~NUNIDS.2, tr, FUN=max)
+
+pplot24<-aggregate(FORTYPCD.1~NUNIDS.2, tr, FUN=max)
+pplot25<-aggregate(FORTYPCD.2~NUNIDS.2, tr, FUN=max)
+pplot26<-aggregate(ECOSUBCD.1~NUNIDS.2, tr, FUN=max)
+
+
+pplot27<-aggregate(NUNID.1~NUNIDS.2, tr, FUN=max)
+pplot28<-aggregate(NUNID.2~NUNIDS.2, tr, FUN=max)
+
+pplot29<-aggregate(DSTRBCD1.2~NUNIDS.2,tr,FUN=max)
+
+pplot30<-aggregate(DSTRBCD2.2~NUNIDS.2,tr,FUN=max)
+pplot31<-aggregate(DSTRBCD3.2~NUNIDS.2,tr,FUN=max)
+
+pplot32<-aggregate(TRTCD1.2~NUNIDS.2,tr,FUN=max)
+
+pplot33<-aggregate(TRTCD2.2~NUNIDS.2,tr,FUN=max)
+pplot34<-aggregate(TRTCD3.2~NUNIDS.2,tr,FUN=max)
+
+pplot35<-aggregate(STDSZCD.1~NUNIDS.2,tr,FUN=max)
+pplot36<-aggregate(FLDSZCD.1~NUNIDS.2,tr,FUN=min)
+pplot36b<-aggregate(FLDSZCD.2~NUNIDS.2,tr,FUN=min)
+pplot37<-aggregate(fire_id_mtbs~NUNIDS.2,tr,FUN=max)
+
+
+pdam1<-merge(pplot1,pplot2,by="NUNIDS.2")
+pdam2<-merge(pdam1,pplot3,by="NUNIDS.2")
+pdam3<-merge(pdam2,pplot4,by="NUNIDS.2")
+pdam4<-merge(pdam3,pplot9,by="NUNIDS.2")
+pdam5<-merge(pdam4,pplot10,by="NUNIDS.2")
+pdam6<-merge(pdam5,pplot11,by="NUNIDS.2")
+# pdam7<-merge(pdam6,pplot12,by="NUNIDS.2")
+# pdam8<-merge(pdam7,pplot13,by="NUNIDS.2")
+pdam9<-merge(pdam6,pplot14,by="NUNIDS.2")
+pdam10<-merge(pdam9,pplot15,by="NUNIDS.2")
+pdam11<-merge(pdam10,pplot17,by="NUNIDS.2")
+ pdam12<-merge(pdam11,pplot16,by="NUNIDS.2")
+pdam13<-merge(pdam12,pplot8,by="NUNIDS.2")
+pdam14<-merge(pdam13,pplot19,by="NUNIDS.2")
+pdam14b<-merge(pdam14,pplot19b,by="NUNIDS.2")
+pdam15<-merge(pdam14b,pplot20,by="NUNIDS.2")
+pdam15b<-merge(pdam15,pplot20b,by="NUNIDS.2")
+
+pdam151<-merge(pdam15b,pplot22,by="NUNIDS.2")
+pdam152<-merge(pdam151,pplot23,by="NUNIDS.2")
+pdam153<-merge(pdam152,pplot24,by="NUNIDS.2")
+pdam154<-merge(pdam153,pplot25,by="NUNIDS.2")
+pdam155<-merge(pdam154,pplot26,by="NUNIDS.2")
+pdam156<-merge(pdam155,pplot27,by="NUNIDS.2")
+pdam157<-merge(pdam156,pplot28,by="NUNIDS.2")
+
+pdam161<-merge(pdam157,pplot29,by="NUNIDS.2")
+pdam162<-merge(pdam161,pplot30,by="NUNIDS.2")
+pdam163<-merge(pdam162,pplot31,by="NUNIDS.2")
+pdam164<-merge(pdam163,pplot32,by="NUNIDS.2")
+pdam165<-merge(pdam164,pplot33,by="NUNIDS.2")
+pdam166<-merge(pdam165,pplot34,by="NUNIDS.2")
+pdam167<-merge(pdam166,pplot35,by="NUNIDS.2")
+pdam168<-merge(pdam167,pplot36,by="NUNIDS.2")
+pdam168b<-merge(pdam168,pplot36b,by="NUNIDS.2")
+pdam169<-merge(pdam168b,pplot37,by="NUNIDS.2")
+pdam16<-merge(pdam169,pplot21,by="NUNIDS.2")
+
+
+
+tr<-pdam16
+cut_agnt <- c(10)
+
+tr$CUT <- ifelse(tr$TRTCD1.2 %in% cut_agnt | tr$TRTCD2.2 %in% cut_agnt 
+                 | tr$TRTCD3.2 %in% cut_agnt, 1,  0)
+
+fire_agnt <- c(30,31,32)
+
+tr$FIRE_ALL <- ifelse(tr$DSTRBCD1.2 %in% fire_agnt | tr$DSTRBCD2.2 %in% fire_agnt 
+                      | tr$DSTRBCD3.2 %in% fire_agnt, 1,  0)
+
+insdis_agnt <- c(10,11,12,20,21,22)
+tr$INSDIS <- ifelse(tr$DSTRBCD1.2 %in% insdis_agnt | tr$DSTRBCD2.2 %in% insdis_agnt 
+                    | tr$DSTRBCD3.2 %in% insdis_agnt, 1,  0)
+
+
+
+tr$Damage<-ifelse(tr$DSTRBCD1.2|tr$DSTRBCD2.2|tr$DSTRBCD3.2>0,1,0)
+tr$Treatment<-ifelse(tr$TRTCD1.2|tr$TRTCD2.2|tr$TRTCD3.2>0,1,0)
+tr$fia_sev<-ifelse(tr$STDAGE.1>tr$STDAGE.2 & tr$STDAGE.2<=tr$REMPER.2,1,0)
+
+kkk<-count(tr,mtbs_sev,FIRE_ALL,fia_sev)
+
+
+write.csv(tr,"plots_with_MTBS.csv")
+
+tr$dist1<-ifelse(tr$DSTRBCD1.1>0,1,0)
+tr$dist2<-ifelse(tr$DSTRBCD1.2>0 & !is.na (tr$DSTRBCD1.2),1,0)
+tr$dist3<-ifelse(tr$DSTRBCD1.x>0 & !is.na (tr$DSTRBCD1.x),1,0)
+tr$dist4<-ifelse(tr$DSTRBCD1.y>0 & !is.na (tr$DSTRBCD1.y),1,0)
+tr$trt1<-ifelse(tr$TRTCD1.1>0 & !is.na (tr$TRTCD1.1),1,0)
+tr$trt2<-ifelse(tr$TRTCD1.2>0 & !is.na (tr$TRTCD1.2),1,0)
+tr$trt3<-ifelse(tr$TRTCD1.x>0 & !is.na (tr$TRTCD1.x),1,0)
+tr$trt4<-ifelse(tr$TRTCD1.y>0 & !is.na (tr$TRTCD1.y),1,0)
+
+## remove disturbed and treated plots in first inventory
+
+tr$dist1234<-interaction(tr$dist1,tr$dist2,tr$dist3,tr$dist4)
+tr$trt1234<-interaction(tr$trt1,tr$trt2,tr$trt3,tr$trt4)
+
+tr$D1<-ifelse(tr$dist1234=="1.0.0.0","IDND",
+                ifelse(tr$dist1234=="1.1.0.0"|
+                         tr$dist1234=="1.1.1.0"|tr$dist1234=="1.1.0.1"|
+                         tr$dist1234=="1.1.1.1","IDFD",
+                       ifelse(tr$dist1234=="0.0.0.0","ND",
+                              ifelse(tr$dist1234=="0.1.0.0"|
+                                       tr$dist1234=="0.1.1.0"|tr$dist1234=="0.1.0.1"|
+                                       tr$dist1234=="0.1.1.1","NDFD",
+                                     ifelse(tr$dist1234=="1.0.1.0"|
+                                              tr$dist1234=="1.0.1.1","IDSD",
+                                            ifelse(tr$dist1234=="0.0.1.0"|
+                                                     tr$dist1234=="0.0.1.1","NDSD",
+                                                   ifelse(tr$dist1234=="1.0.0.1","IDTD",
+                                                          ifelse(tr$dist1234=="0.0.0.1","NDTD",
+                                                                 "NN"))))))))
+
+kkk<-count(tr,D1)
+
+tr$T1<-ifelse(tr$trt1234=="1.0.0.0","ITNT",
+                ifelse(tr$trt1234=="1.1.0.0"|
+                         tr$trt1234=="1.1.1.0"|tr$trt1234=="1.1.0.1"|
+                         tr$trt1234=="1.1.1.1","ITFT",
+                       ifelse(tr$trt1234=="0.0.0.0","NT",
+                              ifelse(tr$trt1234=="0.1.0.0"|
+                                       tr$trt1234=="0.1.1.0"|tr$trt1234=="0.1.0.1"|
+                                       tr$trt1234=="0.1.1.1","NTFT",
+                                     ifelse(tr$trt1234=="1.0.1.0"|
+                                              tr$trt1234=="1.0.1.1","ITST",
+                                            ifelse(tr$trt1234=="0.0.1.0"|
+                                                     tr$trt1234=="0.0.1.1","NTST",
+                                                   ifelse(tr$trt1234=="1.0.0.1","ITTT",
+                                                          ifelse(tr$trt1234=="0.0.0.1","NTTT",
+                                                                 "NN"))))))))
+
+
+
+
+
+
+
+
 
 
 
