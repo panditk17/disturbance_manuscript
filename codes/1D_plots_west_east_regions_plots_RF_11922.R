@@ -1,4 +1,6 @@
 ### plots based on disturbances from FIA data
+## codes to produce figures of one dimensional partial dependence
+## output from random forest models
 
 rm(list=ls())
 
