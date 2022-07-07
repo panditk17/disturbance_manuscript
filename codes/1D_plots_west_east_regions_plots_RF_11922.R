@@ -199,7 +199,7 @@ valid_cut_agb<-data_cut_agb[-train_cut_agb,]
 learn_cut_agb<-data_cut_agb[train_cut_agb,]
 
 
-## only fire agb
+## prepare data for seedling with cuts
 
 data_cut_seed1<-sdam6[c("seed_count.2","seed_count.1","STDORG","FORGRP","STDAGE_1","STDAGE_2",
                         "ECOREG","dist_shift_sh","ELEV","aspect_trans","SLOPE.y","phy_fac")]
@@ -219,7 +219,7 @@ learn_cut_seed<-data_cut_seed[train_cut_seed,]
 
 
 
-## for only fire agb
+## prepare data for biomass with insect and disease
 
 sdam7<-sdam4[which(sdam4$dist_codes=="I"),]
 
