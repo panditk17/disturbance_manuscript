@@ -113,6 +113,7 @@ write.csv(plots_with_tree,"../data/plots_with_tree.csv")
 srsr1<-count(sr1,pplotid)
 srsr1y<-count(sr1,pplotidyr)
 
+## change the name to match the earlier codes
 sr<-sr3
 rm(sr2)
 
