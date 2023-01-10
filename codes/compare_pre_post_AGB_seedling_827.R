@@ -1,7 +1,7 @@
 ### plots based on disturbances from FIA data
 
 # setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
-## updated 12/7/22
+## last updated 1/10/23 
 
 rm(list=ls())
 
