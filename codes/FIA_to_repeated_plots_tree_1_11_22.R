@@ -11,9 +11,14 @@ memory.limit(size=1000000000)
 library(tidyverse)
 
 plots<-read.csv("../../data/PLOT.CSV")
+# plots_all<-plots
+
 plots_all<-plots %>% select(CN,PREV_PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,
-                            PLOT,PLOT_STATUS_CD,MEASYEAR,REMPER,LAT,LON,ELEV,
+                            PLOT,PLOT_STATUS_CD,MEASYEAR,MEASMON, MEASDAY,
+                            REMPER,LAT,LON,ELEV,
                             ECOSUBCD,KINDCD,DESIGNCD)
+
+
 jjj<-count(plots_all,STATECD)
 rm(plots)
 
@@ -21,6 +26,10 @@ plots_all$pplotid<-paste0(plots_all$STATECD,"-",plots_all$UNITCD,"-",
                           plots_all$COUNTYCD,"-",plots_all$PLOT)
 plots_all$pplotidyr<-paste0(plots_all$STATECD,"-",plots_all$UNITCD,"-",
                             plots_all$COUNTYCD,"-",plots_all$PLOT,"-",plots_all$INVYR)
+
+jjj<-count(plots_all,CN)
+kkk<-count(plots_all,pplotidyr)
+lll<-count(plots_all,pplotid)
 
 library(tidyr)
 library(dplyr)
@@ -30,11 +39,12 @@ conds<-read.csv("../../data/COND.csv")
 
 
 cond_all<-conds %>% select(PLT_CN,INVYR,STATECD,UNITCD,COUNTYCD,PLOT,CONDID,
+                           COND_STATUS_CD,
                           FORTYPCD,STDAGE,FLDAGE,FLDSZCD,SITECLCD,SICOND,
                           STDORGCD,STDSZCD,SLOPE,
                           ASPECT,DSTRBCD1,DSTRBYR1,DSTRBCD2,DSTRBYR2,DSTRBCD3,
                           DSTRBYR3,TRTCD1,TRTYR1,TRTCD2,TRTYR2,TRTCD3,TRTYR3,
-                          BALIVE)
+                          BALIVE,CONDPROP_UNADJ,MICRPROP_UNADJ)
 
 hhh<-count(cond_all,STATECD)
 rm(conds)
@@ -43,9 +53,24 @@ cond_all$cplotid<-paste0(cond_all$STATECD,"-",cond_all$UNITCD,"-",
 cond_all$cplotidyr<-paste0(cond_all$STATECD,"-",cond_all$UNITCD,"-",
                            cond_all$COUNTYCD,"-",cond_all$PLOT,"-",cond_all$INVYR)
 
-filt_cond<-cond_all[which(cond_all$CONDID==1),]
+mmm<-count(cond_all,cplotid)
+filt_cond1<-cond_all[which(cond_all$COND_STATUS_CD==1),]
+nnn<-count(filt_cond1,cplotid)
 
-iii<-count(filt_cond,STATECD)
+iii<-count(filt_cond1,STATECD)
+
+filt_cond2<-filt_cond1[which(filt_cond1$CONDPROP_UNADJ>=0.9),]
+filt_cond3<-filt_cond2[which(filt_cond2$MICRPROP_UNADJ>=0.9),]
+
+ppp<-count(filt_cond3,STATECD)
+ppp<-count(filt_cond3,cplotid)
+
+
+# library(tidyverse)
+# filt_cond4<-filt_cond1 %>% group_by(cplotidyr) %>% 
+#   filter(abs(CONDPROP_UNADJ) == max(CONDPROP_UNADJ)) 
+
+
 rm(cond_all)
 
 tree_all<-readRDS("../../data/subset_tree_all.RDS") # subset of tree table with
@@ -57,20 +82,20 @@ tree_all$tplotid<-paste0(tree_all$STATECD,"-",tree_all$UNITCD,"-",
 tree_all$tplotidyr<-paste0(tree_all$STATECD,"-",tree_all$UNITCD,"-",
                           tree_all$COUNTYCD,"-",tree_all$PLOT,"-",tree_all$INVYR)
 
-tree_cond<-merge(tree_all,filt_cond,by.x="tplotidyr",by.y="cplotidyr",
-                 suffixes=c(".TR",".CND"),all=TRUE)
+tree_cond<-merge(tree_all,filt_cond3,by.x="tplotidyr",by.y="cplotidyr",
+                 suffixes=c(".TR",".CND"),all.y=TRUE)
 
-lll<-count(tree_cond,STATECD)
+lll<-count(tree_cond,STATECD.TR)
 rm(tree_all)
-rm(filt_cond)
+rm(filt_cond3)
 
 tree_cond_plot<-merge(tree_cond,plots_all,by.x="tplotidyr",by.y="pplotidyr",
-                      suffixes=c(".tc",".pl"),all=TRUE)
+                      suffixes=c(".tc",".pl"),all.x=TRUE)
 rm(tree_cond)
 rm(plots_all)
 #save file
 saveRDS(tree_cond_plot,"../../data/tree_cond_plot_all_true.RDS")
-tree_cond_plot<-readRDS("../../data/tree_cond_plot_all_true.RDS")
+# tree_cond_plot<-readRDS("../../data/tree_cond_plot_all_true.RDS")
 
 mmm<-count(tree_cond_plot,STATECD)
 
@@ -92,31 +117,38 @@ plots_with_no_tree<-jkjk[is.na(jkjk$tplotid),]
 sr<-tree_cond_plot
 rm(tree_cond_plot)
 
-sr2<-sr[which(sr$DESIGNCD==1),]
-sss<-count(sr,STATECD,DESIGNCD)
+# sr2<-sr[which(sr$DESIGNCD==1),]
+# sss<-count(sr,STATECD,DESIGNCD)
 
-sr3<-sr[which(sr$KINDCD==1|sr$KINDCD==2),]
+# sr3<-sr[which(sr$KINDCD==1|sr$KINDCD==2),]
+# 
+# ttt<-count(sr3,STATECD,KINDCD)
+# 
+# uuu<-count(sr3,STATECD,DESIGNCD)
+# 
+# plots_all<-count(sr3,pplotid)
+# 
 
-ttt<-count(sr3,STATECD,KINDCD)
+sr3<-sr
+sr3$pplotidyr<-paste0(sr3$STATECD,"-",sr3$UNITCD,"-",
+                      sr3$COUNTYCD,"-",sr3$PLOT,"-",sr3$INVYR)
+plots_all_a<-count(sr3,pplotidyr)
 
-uuu<-count(sr3,STATECD,DESIGNCD)
+write.csv(plots_all_a,"plots_selected_analysis.csv")
 
-plots_all<-count(sr,pplotid)
-plots_all_a<-count(sr1,pplotid,tplotid)
+# ooo<-read.csv("plots_selected_analysis.csv")
 
-
-plots_with_tree<-plots_all_a[!is.na(plots_all_a$tplotid),]
-
-write.csv(plots_with_tree,"../data/plots_with_tree.csv")
+# plots_with_tree<-plots_all_a[!is.na(plots_all_a$tplotidyr),]
+# 
+# write.csv(plots_with_tree,"../data/plots_with_tree.csv")
 
 
 srsr1<-count(sr1,pplotid)
 srsr1y<-count(sr1,pplotidyr)
 
-## change the name to match the earlier codes
 sr<-sr3
 rm(sr2)
-
+rm(sr3)
 
 
 rm(sr1)
@@ -136,8 +168,8 @@ sr$TREEIDYR <- paste0(sr$STATECD,"-",sr$UNITCD,"-",sr$COUNTYCD,"-",
 firstall<-sr %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) == min(MEASYEAR)) 
 
-first_p1<-count(firstall,pplotid)
-first_p1all<-count(firstall,pplotidyr)
+first_p1<-count(firstall,NUNIDS)
+first_p1all<-count(firstall,NUNID)
 
 nofirstall<-sr %>% group_by(NUNIDS) %>% 
   filter(abs(MEASYEAR) != min(MEASYEAR)) 
