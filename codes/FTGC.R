@@ -1,4 +1,5 @@
 # Forest type group function
+# convert individual forest type to groups
 
 # take forest type code from FIA and group
 
