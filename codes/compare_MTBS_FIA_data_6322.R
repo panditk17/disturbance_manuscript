@@ -4,7 +4,7 @@
 ## produces limited number of severe disturbances
 
 ## codes to combine FIA data and MTBS data
-## updated on April 20222
+## updated on April 2022
 
 rm(list=ls())
 
