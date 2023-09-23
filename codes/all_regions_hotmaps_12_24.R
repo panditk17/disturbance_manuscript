@@ -1,4 +1,5 @@
 ### plots based on disturbances from FIA data
+## calculate hostpot maps
 
 # setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
 
