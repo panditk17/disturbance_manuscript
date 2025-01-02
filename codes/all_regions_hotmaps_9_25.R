@@ -1,4 +1,5 @@
 ### plots based on disturbances from FIA data
+## hotspot maps based on random forest outputs
 
 # setwd('C:/Karuns_documents/fire_MTBS/all_disturbance/disturbance')
 
